@@ -634,7 +634,7 @@
 
         this.repositionToolbars();
 
-        $toolbar.fadeIn();
+        // $toolbar.fadeIn();
         $toolbar2.fadeIn();
     };
 
