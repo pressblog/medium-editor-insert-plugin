@@ -114,8 +114,7 @@ describe('Core', function () {
         this.$el.find('#paragraph').click();
         jasmine.clock().tick(101);
 
-        expect(this.$el.find('.medium-insert-buttons').css('display')).toBe('block');
-        expect(this.$el.find('.medium-insert-buttons button[data-addon="embeds"]').parent().css('display')).toBe('none');
+        expect(this.$el.find('.medium-insert-buttons').css('display')).toBe('none');
     });
 
     it('hides plugin\'s buttons after clicking on non-empty paragraph', function () {

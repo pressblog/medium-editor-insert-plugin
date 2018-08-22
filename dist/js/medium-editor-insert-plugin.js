@@ -586,15 +586,14 @@ this["MediumInsert"]["Templates"]["src/js/templates/images-toolbar.hbs"] = Handl
 
                 if (activeAddon === 'images') {
                     this.$el.find('.medium-insert-buttons').attr('data-active-addon', activeAddon);
+                    this.hideButtons();
                 } else {
                     this.$el.find('.medium-insert-buttons').removeAttr('data-active-addon');
+                    setTimeout(function () {
+                        that.positionButtons(activeAddon);
+                        that.showButtons(activeAddon);
+                    }, activeAddon ? 100 : 0);
                 }
-
-                // If buttons are displayed on addon paragraph, wait 100ms for possible captions to display
-                setTimeout(function () {
-                    that.positionButtons(activeAddon);
-                    that.showButtons(activeAddon);
-                }, activeAddon ? 100 : 0);
             } else {
                 this.hideButtons();
             }
@@ -2212,7 +2211,7 @@ this["MediumInsert"]["Templates"]["src/js/templates/images-toolbar.hbs"] = Handl
 
         this.repositionToolbars();
 
-        $toolbar.fadeIn();
+        // $toolbar.fadeIn();
         $toolbar2.fadeIn();
     };
 
