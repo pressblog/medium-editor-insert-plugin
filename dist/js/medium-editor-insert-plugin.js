@@ -2045,9 +2045,9 @@ this["MediumInsert"]["Templates"]["src/js/templates/images-toolbar.hbs"] = Handl
             setTimeout(function () {
                 that.addToolbar();
 
-                // if (that.options.captions) {
-                //     that.core.addCaption($image.closest('figure'), that.options.captionPlaceholder);
-                // }
+                if (that.options.captions) {
+                    that.core.addCaption($image.closest('figure'), that.options.captionPlaceholder);
+                }
             }, 50);
         }
     };

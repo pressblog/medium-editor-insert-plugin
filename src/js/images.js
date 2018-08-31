@@ -468,9 +468,9 @@
             setTimeout(function () {
                 that.addToolbar();
 
-                // if (that.options.captions) {
-                //     that.core.addCaption($image.closest('figure'), that.options.captionPlaceholder);
-                // }
+                if (that.options.captions) {
+                    that.core.addCaption($image.closest('figure'), that.options.captionPlaceholder);
+                }
             }, 50);
         }
     };

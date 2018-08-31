@@ -234,7 +234,7 @@ describe('Images addon', function () {
         expect(this.$el.find('img').hasClass('medium-insert-image-active')).toBe(true);
         expect($('.medium-insert-images-toolbar').length).toEqual(1);
         expect($('.medium-insert-images-toolbar2').length).toEqual(1);
-        expect(this.$el.find('figcaption').length).toEqual(0);
+        expect(this.$el.find('figcaption').length).toEqual(1);
     });
 
     it('supports disabling captions', function () {
