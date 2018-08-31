@@ -1592,6 +1592,9 @@ this["MediumInsert"]["Templates"]["src/js/templates/images-toolbar.hbs"] = Handl
             captions: true,
             captionPlaceholder: 'Type caption for image (optional)',
             autoGrid: 3,
+            customFileUploadCallbacks: {
+                afterAdd: function () {}
+            },
             fileUploadOptions: { // See https://github.com/blueimp/jQuery-File-Upload/wiki/Options
                 url: null,
                 acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i
@@ -1779,6 +1782,8 @@ this["MediumInsert"]["Templates"]["src/js/templates/images-toolbar.hbs"] = Handl
                 dataType: 'json',
                 add: function (e, data) {
                     $.proxy(that, 'uploadAdd', e, data)();
+                    // 独自で追加した関数
+                    that.options.customFileUploadCallbacks.afterAdd(e, data);
                 },
                 done: function (e, data) {
                     $.proxy(that, 'uploadDone', e, data)();
