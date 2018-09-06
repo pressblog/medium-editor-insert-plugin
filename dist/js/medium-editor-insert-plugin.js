@@ -163,6 +163,14 @@ this["MediumInsert"]["Templates"]["src/js/templates/images-toolbar.hbs"] = Handl
     + "    </ul>\n</div>\n\n"
     + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.actions : depth0),{"name":"if","hash":{},"fn":container.program(4, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "");
 },"useData":true});
+
+this["MediumInsert"]["Templates"]["src/js/templates/images-video.hbs"] = Handlebars.template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
+    var helper;
+
+  return "<figure contenteditable=\"false\">\n  <video controls>\n    <source src=\""
+    + container.escapeExpression(((helper = (helper = helpers.video || (depth0 != null ? depth0.video : depth0)) != null ? helper : helpers.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"video","hash":{},"data":data}) : helper)))
+    + "\" alt=\"\">\n  </video>\n</figure>\n";
+},"useData":true});
 ;(function ($, window, document, undefined) {
 
     'use strict';
@@ -1451,7 +1459,7 @@ this["MediumInsert"]["Templates"]["src/js/templates/images-toolbar.hbs"] = Handl
         }
 
         this.repositionToolbars();
-        $toolbar.fadeIn();
+        // $toolbar.fadeIn();
         $toolbar2.fadeIn();
     };
 
