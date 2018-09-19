@@ -1,3 +1,5 @@
+import MediumEditor from 'medium-editor';
+
 const ToolbarButton = MediumEditor.extensions.button.extend({
     init: function() {
         this.button = this.document.createElement('button');

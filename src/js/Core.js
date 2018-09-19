@@ -1,3 +1,4 @@
+import MediumEditor from 'medium-editor';
 import utils from './utils';
 import Images from './addons/Images';
 import Embeds from './addons/Embeds';

@@ -1,3 +1,4 @@
+import MediumEditor from 'medium-editor';
 import Core from './Core';
 
 const MediumEditorInsert = MediumEditor.Extension.extend({

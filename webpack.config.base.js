@@ -1,3 +1,5 @@
+var webpack = require('webpack');
+
 module.exports = {
   module: {
     loaders: [{
@@ -15,5 +17,10 @@ module.exports = {
       '',
       '.js',
     ],
-  }
+  },
+  plugins: [
+    new webpack.ProvidePlugin({
+      MediumEditor: 'medium-editor'
+    })
+  ]
 };
