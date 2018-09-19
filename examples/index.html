@@ -40,6 +40,21 @@
         };
 
 		var editor = new MediumEditor('.editable', {
+            toolbar: {
+              buttons: [
+                'bold', 'italic', 'underline', 'strikethrough',
+                'superscript', 'subscript',
+                'image',
+                'html',
+                'orderedlist', 'unorderedlist',
+                'indent', 'outdent',
+                'justifyCenter', 'justifyFull', 'justifyLeft', 'justifyRight',
+                'removeFormat',
+                'quote',
+                'pre',
+                'h1', 'h2', 'h3', 'h4', 'h5', 'h6'
+              ]
+            },
             buttonLabels: 'fontawesome',
             extensions: {
             	'insert': new MediumEditorInsert({
