@@ -1,69 +1,90 @@
 <!DOCTYPE html>
 <html>
-<head>
-	<meta charset="utf-8">
-	<title>medium-editor-insert</title>
-	<link rel="stylesheet" href="./css/demo.css">
+  <head>
+    <meta charset="utf-8">
+    <title>medium-editor-insert</title>
+    <link rel="stylesheet" href="./css/demo.css">
     <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.css">
-	<link rel="stylesheet" href="../node_modules/medium-editor/dist/css/medium-editor.min.css">
-	<link rel="stylesheet" href="../node_modules/medium-editor/dist/css/themes/default.css">
-	<link rel="stylesheet" href="../dist/css/medium-editor-insert.css">
-</head>
-<body>
-	<div id="container">
-		<h1>Medium Editor + insert extension</h1>
-		<div class="editable">
-			<p>My father’s family name being <a href="https://en.wikipedia.org/wiki/Pip_(Great_Expectations)">Pirrip</a>, and my Christian name Philip, my infant tongue could make of both names nothing longer or more explicit than Pip. So, I called myself Pip, and came to be called Pip.</p>
-            <p>I give Pirrip as my father’s family name, on the authority of his tombstone and my sister,—Mrs. Joe Gargery, who married the blacksmith. As I never saw my father or my mother, and never saw any likeness of either of them (for their days were long before the days of photographs), my first fancies regarding what they were like were unreasonably derived from their tombstones. The shape of the letters on my father’s, gave me an odd idea that he was a square, stout, dark man, with curly black hair. From the character and turn of the inscription, “Also Georgiana Wife of the Above,” I drew a childish conclusion that my mother was freckled and sickly. To five little stone lozenges, each about a foot and a half long, which were arranged in a neat row beside their grave, and were sacred to the memory of five little brothers of mine,—who gave up trying to get a living, exceedingly early in that universal struggle,—I am indebted for a belief I religiously entertained that they had all been born on their backs with their hands in their trousers-pockets, and had never taken them out in this state of existence.</p>
-            <p>Ours was the marsh country, down by the river, within, as the river wound, twenty miles of the sea. My first most vivid and broad impression of the identity of things seems to me to have been gained on a memorable raw afternoon towards evening. At such a time I found out for certain that this bleak place overgrown with nettles was the churchyard; and that Philip Pirrip, late of this parish, and also Georgiana wife of the above, were dead and buried; and that Alexander, Bartholomew, Abraham, Tobias, and Roger, infant children of the aforesaid, were also dead and buried; and that the dark flat wilderness beyond the churchyard, intersected with dikes and mounds and gates, with scattered cattle feeding on it, was the marshes; and that the low leaden line beyond was the river; and that the distant savage lair from which the wind was rushing was the sea; and that the small bundle of shivers growing afraid of it all and beginning to cry, was Pip.</p>
-		</div>
-	</div>
-	<p style="text-align: center;"><small><a style="color: #333;" target="_blank" href="http://www.goodreads.com/reader/475-great-expectations">Source</a></small></p>
+    <link rel="stylesheet" href="../node_modules/medium-editor/dist/css/medium-editor.min.css">
+    <link rel="stylesheet" href="../node_modules/medium-editor/dist/css/themes/default.css">
+    <link rel="stylesheet" href="../dist/css/medium-editor-insert.css">
+  </head>
+  <body>
+    <div id="container">
+      <h1>Medium Editor + insert extension</h1>
+      <div class="editable">
+        <p>こんにちは！やっと素敵なブログに出会えて、今書き始めなのですがすごくワクワクしています🤩</p>
+        <p>まずは初投稿ということで、私の自己紹介をします。</p>
+        <div class="medium-editor-insert-images" contenteditable="false">
+          <figure>
+            <img src="./introduction.jpg">
+          </figure>
+        </div>
+        <h2>自己紹介</h2>
+        <h3>名前</h3>
+        <p>sainu（さいぬ）🐶<br></p>
+        <p>ネットでのハンドルネームは<b>sainu</b>でやっています！これは本名が「さい〇〇」なのと、「犬っぽい」性格？から、「さい」＋「犬」＝「さいぬ」と呼ばれています〜</p>
+        <h4>職業</h4>
+        <p>私は、ソフトウェアエンジニアという仕事をしています💻</p>
+        <h3>好きな映画</h3>
+        <ul>
+          <li>ものづくり</li>
+          <li>映画鑑賞</li>
+          <li>本</li>
+        </ul>
+        <p>最近感動した映画は、<u>戦場のピアニスト</u>ですね！ナチスのユダヤ人大虐殺があった時代のとあるピアニストが主人公の話です。<strike>フィクションです。</strike></p>
+        <h3>好きな言葉</h3>
+        <blockquote>好きは物の上手なれ</blockquote>
+        <blockquote>夢中は努力に勝る</blockquote>
+        <p><br></p>
+      </div>
+    </div>
+    <p style="text-align: center;"><small><a style="color: #333;" target="_blank" href="http://www.goodreads.com/reader/475-great-expectations">Source</a></small></p>
 
-	<script src="../node_modules/medium-editor/dist/js/medium-editor.min.js"></script>
-	<script src="../dist/js/medium-editor-insert.js"></script>
+    <script src="../node_modules/medium-editor/dist/js/medium-editor.min.js"></script>
+    <script src="../dist/js/medium-editor-insert.js"></script>
 
-	<script>
-        var CustomAddon = function (plugin) {
-            this._plugin = plugin;
-            this._editor = this._plugin.base;
+    <script>
+      var CustomAddon = function (plugin) {
+        this._plugin = plugin;
+        this._editor = this._plugin.base;
 
-            this.options = {
-                label: '<span class="fa fa-list"></span>'
-            };
-
-            this.label = this.options.label;
+        this.options = {
+          label: '<span class="fa fa-list"></span>'
         };
 
-        CustomAddon.prototype.handleClick = function () {
-            console.log('hell yeah!');
-        };
+        this.label = this.options.label;
+      };
 
-		var editor = new MediumEditor('.editable', {
-            toolbar: {
-              buttons: [
-                'bold', 'italic', 'underline', 'strikethrough',
-                'superscript', 'subscript',
-                'image',
-                'html',
-                'orderedlist', 'unorderedlist',
-                'indent', 'outdent',
-                'justifyCenter', 'justifyFull', 'justifyLeft', 'justifyRight',
-                'removeFormat',
-                'quote',
-                'pre',
-                'h1', 'h2', 'h3', 'h4', 'h5', 'h6'
-              ]
-            },
-            buttonLabels: 'fontawesome',
-            extensions: {
-            	'insert': new MediumEditorInsert({
-                    addons: {
-                        custom: CustomAddon
-                    }
-                })
+      CustomAddon.prototype.handleClick = function () {
+        console.log('hell yeah!');
+      };
+
+      var editor = new MediumEditor('.editable', {
+        toolbar: {
+          buttons: [
+            'bold', 'italic', 'underline', 'strikethrough',
+            'superscript', 'subscript',
+            'image',
+            'html',
+            'orderedlist', 'unorderedlist',
+            'indent', 'outdent',
+            'justifyCenter', 'justifyFull', 'justifyLeft', 'justifyRight',
+            'removeFormat',
+            'quote',
+            'pre',
+            'h1', 'h2', 'h3', 'h4', 'h5', 'h6'
+          ]
+        },
+        buttonLabels: 'fontawesome',
+        extensions: {
+          'insert': new MediumEditorInsert({
+            addons: {
+              custom: CustomAddon
             }
-        });
-	</script>
-</body>
+          })
+        }
+      });
+    </script>
+  </body>
 </html>
