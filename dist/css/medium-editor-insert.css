@@ -10,7 +10,7 @@
     cursor: pointer; }
   .medium-editor-insert-buttons .medium-editor-insert-buttons-show {
     box-sizing: border-box;
-    display: block;
+    display: inline-block;
     width: 32px;
     height: 32px;
     border-radius: 20px;
@@ -32,6 +32,7 @@
     list-style: none;
     z-index: 2;
     opacity: 0;
+    height: 0;
     transition: opacity .1s; }
     .medium-editor-insert-buttons .medium-editor-insert-buttons-addons li {
       display: inline-block;
@@ -56,7 +57,8 @@
     transition: transform 250ms;
     transform: rotate(45deg); }
   .medium-editor-insert-buttons.medium-editor-insert-addons-active .medium-editor-insert-buttons-addons {
-    opacity: 1; }
+    opacity: 1;
+    height: auto; }
     .medium-editor-insert-buttons.medium-editor-insert-addons-active .medium-editor-insert-buttons-addons li {
       transition-duration: .2s;
       transform: scale(1);
