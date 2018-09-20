@@ -80,7 +80,12 @@ var editor = new MediumEditor('.editable', {
     extensions: {
         'insert': new MediumEditorInsert({
             addons: {
-                custom: CustomAddon
+                custom: CustomAddon,
+                images: {
+                    toolbar: {
+                        buttons: []
+                    }
+                }
             }
         })
     }

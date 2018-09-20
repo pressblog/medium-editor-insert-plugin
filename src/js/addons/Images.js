@@ -11,7 +11,26 @@ export default class Images {
             uploadUrl: 'upload.php',
             deleteUrl: 'delete.php',
             deleteMethod: 'DELETE',
-            deleteData: {}
+            deleteData: {},
+            toolbar: {
+                buttons: [
+                    {
+                        name: 'align-left',
+                        action: 'left',
+                        label: 'Left'
+                    },
+                    {
+                        name: 'align-center',
+                        action: 'center',
+                        label: 'Center'
+                    },
+                    {
+                        name: 'align-right',
+                        action: 'right',
+                        label: 'Right'
+                    }
+                ]
+            }
         };
 
         Object.assign(this.options, options);
@@ -50,23 +69,7 @@ export default class Images {
             plugin: this._plugin,
             type: 'images',
             activeClassName: this.activeClassName,
-            buttons: [
-                {
-                    name: 'align-left',
-                    action: 'left',
-                    label: 'Left'
-                },
-                {
-                    name: 'align-center',
-                    action: 'center',
-                    label: 'Center'
-                },
-                {
-                    name: 'align-right',
-                    action: 'right',
-                    label: 'Right'
-                }
-            ]
+            buttons: this.options.toolbar.buttons
         });
 
         this._editor.extensions.push(this.toolbar);

@@ -8577,7 +8577,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
-		value: true
+	    value: true
 	});
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -8585,29 +8585,29 @@ return /******/ (function(modules) { // webpackBootstrap
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	var Embeds = function () {
-		function Embeds(plugin, options) {
-			_classCallCheck(this, Embeds);
+	    function Embeds(plugin, options) {
+	        _classCallCheck(this, Embeds);
 
-			this._plugin = plugin;
-			this._editor = this._plugin.base;
+	        this._plugin = plugin;
+	        this._editor = this._plugin.base;
 
-			this.options = {
-				label: '<span class="fa fa-youtube-play"></span>'
-			};
+	        this.options = {
+	            label: '<span class="fa fa-youtube-play"></span>'
+	        };
 
-			Object.assign(this.options, options);
+	        Object.assign(this.options, options);
 
-			this.label = this.options.label;
-		}
+	        this.label = this.options.label;
+	    }
 
-		_createClass(Embeds, [{
-			key: 'handleClick',
-			value: function handleClick() {
-				window.console.log('embeds clicked');
-			}
-		}]);
+	    _createClass(Embeds, [{
+	        key: 'handleClick',
+	        value: function handleClick() {
+	            window.console.log('embeds clicked');
+	        }
+	    }]);
 
-		return Embeds;
+	    return Embeds;
 	}();
 
 	exports.default = Embeds;
@@ -8651,7 +8651,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	            uploadUrl: 'upload.php',
 	            deleteUrl: 'delete.php',
 	            deleteMethod: 'DELETE',
-	            deleteData: {}
+	            deleteData: {},
+	            toolbar: {
+	                buttons: [{
+	                    name: 'align-left',
+	                    action: 'left',
+	                    label: 'Left'
+	                }, {
+	                    name: 'align-center',
+	                    action: 'center',
+	                    label: 'Center'
+	                }, {
+	                    name: 'align-right',
+	                    action: 'right',
+	                    label: 'Right'
+	                }]
+	            }
 	        };
 
 	        Object.assign(this.options, options);
@@ -8696,19 +8711,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                plugin: this._plugin,
 	                type: 'images',
 	                activeClassName: this.activeClassName,
-	                buttons: [{
-	                    name: 'align-left',
-	                    action: 'left',
-	                    label: 'Left'
-	                }, {
-	                    name: 'align-center',
-	                    action: 'center',
-	                    label: 'Center'
-	                }, {
-	                    name: 'align-right',
-	                    action: 'right',
-	                    label: 'Right'
-	                }]
+	                buttons: this.options.toolbar.buttons
 	            });
 
 	            this._editor.extensions.push(this.toolbar);
