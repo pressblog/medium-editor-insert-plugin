@@ -3,12 +3,12 @@ import MediumEditorInsert from '../../Plugin';
 describe('Images', () => {
     let container, plugin, editor, addon;
 
-	beforeEach(() => {
+    beforeEach(() => {
         container = document.createElement('div');
         container.classList.add('editable');
         document.body.appendChild(container);
 
-		plugin = new MediumEditorInsert();
+        plugin = new MediumEditorInsert();
 
         editor = new MediumEditor('.editable', {
             extensions: {
@@ -18,7 +18,7 @@ describe('Images', () => {
 
         addon = plugin.getAddon('images');
         jasmine.Ajax.install();
-	});
+    });
 
     afterEach(() => {
         editor.destroy();

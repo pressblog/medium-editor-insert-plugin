@@ -4,11 +4,11 @@ import Core from '../Core';
 describe('Plugin', () => {
     let container, editor, plugin;
 
-	beforeEach(() => {
+    beforeEach(() => {
         container = document.createElement('div');
         container.classList.add('editable');
         document.body.appendChild(container);
-	});
+    });
 
     afterEach(() => {
         editor.destroy();

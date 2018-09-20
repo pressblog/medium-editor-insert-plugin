@@ -10,7 +10,7 @@ const ToolbarButton = MediumEditor.extensions.button.extend({
     },
 
     getButton: function() {
-      return this.button;
+        return this.button;
     },
 
     handleClick: function() {

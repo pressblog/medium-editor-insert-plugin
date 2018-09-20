@@ -3,19 +3,19 @@ import MediumEditorInsert from '../Plugin';
 describe('Core', () => {
     let container, plugin, editor;
 
-	beforeEach(() => {
+    beforeEach(() => {
         container = document.createElement('div');
         container.classList.add('editable');
         document.body.appendChild(container);
 
-		plugin = new MediumEditorInsert();
+        plugin = new MediumEditorInsert();
 
         editor = new MediumEditor('.editable', {
             extensions: {
                 insert: plugin
             }
         });
-	});
+    });
 
     afterEach(() => {
         editor.destroy();

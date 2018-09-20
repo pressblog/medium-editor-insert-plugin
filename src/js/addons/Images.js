@@ -4,27 +4,27 @@ import Toolbar from '../Toolbar';
 
 export default class Images {
 
-	constructor(plugin, options) {
-		this.options = {
-			label: '<span class="fa fa-camera"></span>',
-			preview: true,
-			uploadUrl: 'upload.php',
+    constructor(plugin, options) {
+        this.options = {
+            label: '<span class="fa fa-camera"></span>',
+            preview: true,
+            uploadUrl: 'upload.php',
             deleteUrl: 'delete.php',
             deleteMethod: 'DELETE',
             deleteData: {}
-		};
+        };
 
-		Object.assign(this.options, options);
+        Object.assign(this.options, options);
 
         this._plugin = plugin;
         this._editor = this._plugin.base;
         this.elementClassName = 'medium-editor-insert-images';
         this.activeClassName = 'medium-editor-insert-image-active';
-		this.label = this.options.label;
+        this.label = this.options.label;
 
         this.initToolbar();
         this.events();
-	}
+    }
 
     events() {
         this._plugin.on(document, 'click', this.unselectImage.bind(this));
@@ -35,15 +35,15 @@ export default class Images {
         });
     }
 
-	handleClick() {
-		this._input = document.createElement('input');
-		this._input.type = 'file';
-		this._input.multiple = true;
+    handleClick() {
+        this._input = document.createElement('input');
+        this._input.type = 'file';
+        this._input.multiple = true;
 
-		this._plugin.on(this._input, 'change', this.uploadFiles.bind(this));
+        this._plugin.on(this._input, 'change', this.uploadFiles.bind(this));
 
-		this._input.click();
-	}
+        this._input.click();
+    }
 
     initToolbar() {
         this.toolbar = new Toolbar({
@@ -72,50 +72,50 @@ export default class Images {
         this._editor.extensions.push(this.toolbar);
     }
 
-	uploadFiles() {
-		const paragraph = this._plugin.getCore().selectedElement;
+    uploadFiles() {
+        const paragraph = this._plugin.getCore().selectedElement;
 
         // Replace paragraph with div, because figure is a block element
         // and can't be nested inside paragraphs
-		if (paragraph.nodeName.toLowerCase() === 'p') {
-			const div = document.createElement('div');
+        if (paragraph.nodeName.toLowerCase() === 'p') {
+            const div = document.createElement('div');
 
-			paragraph.parentNode.insertBefore(div, paragraph);
-			this._plugin.getCore().selectElement(div);
-			paragraph.remove();
-		}
+            paragraph.parentNode.insertBefore(div, paragraph);
+            this._plugin.getCore().selectElement(div);
+            paragraph.remove();
+        }
 
-		Array.prototype.forEach.call(this._input.files, (file) => {
+        Array.prototype.forEach.call(this._input.files, (file) => {
             // Generate uid for this image, so we can identify it later
             // and we can replace preview image with uploaded one
-			const uid = utils.generateRandomString();
+            const uid = utils.generateRandomString();
 
-			if (this.options.preview) {
-				this.preview(file, uid);
-			}
+            if (this.options.preview) {
+                this.preview(file, uid);
+            }
 
-			this.upload(file, uid);
-		});
+            this.upload(file, uid);
+        });
 
-		this._plugin.getCore().hideButtons();
-	}
+        this._plugin.getCore().hideButtons();
+    }
 
-	preview(file, uid) {
-		const reader = new FileReader();
+    preview(file, uid) {
+        const reader = new FileReader();
 
-		reader.onload = (e) => {
-			this.insertImage(e.target.result, uid);
-		};
+        reader.onload = (e) => {
+            this.insertImage(e.target.result, uid);
+        };
 
-		reader.readAsDataURL(file);
-	}
+        reader.readAsDataURL(file);
+    }
 
-	upload(file, uid) {
-		const xhr = new XMLHttpRequest(),
-			data = new FormData();
+    upload(file, uid) {
+        const xhr = new XMLHttpRequest(),
+            data = new FormData();
 
-		xhr.open("POST", this.options.uploadUrl, true);
-		xhr.onreadystatechange = () => {
+        xhr.open("POST", this.options.uploadUrl, true);
+        xhr.onreadystatechange = () => {
             if (xhr.readyState === 4 && xhr.status === 200) {
                 const image = this._plugin.getCore().selectedElement.querySelector(`[data-uid="${uid}"]`);
 
@@ -125,11 +125,11 @@ export default class Images {
                     this.insertImage(xhr.responseText);
                 }
             }
-		};
+        };
 
-		data.append("file", file);
-		xhr.send(data);
-	}
+        data.append("file", file);
+        xhr.send(data);
+    }
 
     insertImage(url, uid) {
         const el = this._plugin.getCore().selectedElement,
@@ -222,7 +222,7 @@ export default class Images {
                 // Is backspace pressed and caret is at the beginning of a paragraph, get previous element
                 if (e.which === MediumEditor.util.keyCode.BACKSPACE && caretPosition === 0) {
                     sibling = focusedElement.previousElementSibling;
-                // Is del pressed and caret is at the end of a paragraph, get next element
+                    // Is del pressed and caret is at the end of a paragraph, get next element
                 } else if (e.which === MediumEditor.util.keyCode.DELETE && caretPosition === focusedElement.innerText.length) {
                     sibling = focusedElement.nextElementSibling;
                 }

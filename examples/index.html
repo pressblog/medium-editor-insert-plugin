@@ -1,68 +1,68 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <title>medium-editor-insert</title>
-    <link rel="stylesheet" href="./css/demo.css">
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.css">
-	  <link rel="stylesheet" href="./css/medium-editor.min.css">
-	  <link rel="stylesheet" href="./css/themes/default.css">
-	  <link rel="stylesheet" href="../dist/css/medium-editor-insert.css">
-  </head>
-  <body>
-    <div id="container">
-      <h1 class="title">Medium Editor + insert extension</h1>
-      <div class="editable">
-        <p>こんにちは！やっと素敵なブログに出会えて、今書き始めなのですがすごくワクワクしています🤩</p>
-        <p>まずは初投稿ということで、私の自己紹介をします。</p>
-        <div class="medium-editor-insert-images" contenteditable="false">
-          <figure>
-            <img src="./introduction.jpg">
-          </figure>
+    <head>
+        <meta charset="utf-8">
+        <title>medium-editor-insert</title>
+        <link rel="stylesheet" href="./css/demo.css">
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.css">
+        <link rel="stylesheet" href="./css/medium-editor.min.css">
+        <link rel="stylesheet" href="./css/themes/default.css">
+        <link rel="stylesheet" href="../dist/css/medium-editor-insert.css">
+    </head>
+    <body>
+        <div id="container">
+            <h1 class="title">Medium Editor + insert extension</h1>
+            <div class="editable">
+                <p>こんにちは！やっと素敵なブログに出会えて、今書き始めなのですがすごくワクワクしています🤩</p>
+                <p>まずは初投稿ということで、私の自己紹介をします。</p>
+                <div class="medium-editor-insert-images" contenteditable="false">
+                    <figure>
+                        <img src="./introduction.jpg">
+                    </figure>
+                </div>
+                <h2>自己紹介</h2>
+                <h3>名前</h3>
+                <p>sainu（さいぬ）🐶<br></p>
+                <p>ネットでのハンドルネームは<b>sainu</b>でやっています！これは本名が「さい〇〇」なのと、「犬っぽい」性格？から、「さい」＋「犬」＝「さいぬ」と呼ばれています〜</p>
+                <h4>職業</h4>
+                <p>私は、ソフトウェアエンジニアという仕事をしています💻</p>
+                <h3>好きな映画</h3>
+                <ul>
+                    <li>ものづくり</li>
+                    <li>映画鑑賞</li>
+                    <li>本</li>
+                </ul>
+                <p>最近感動した映画は、<u>戦場のピアニスト</u>ですね！ナチスのユダヤ人大虐殺があった時代のとあるピアニストが主人公の話です。<strike>フィクションです。</strike></p>
+                <h3>好きな言葉</h3>
+                <blockquote>好きは物の上手なれ</blockquote>
+                <blockquote>夢中は努力に勝る</blockquote>
+                <p><br></p>
+            </div>
         </div>
-        <h2>自己紹介</h2>
-        <h3>名前</h3>
-        <p>sainu（さいぬ）🐶<br></p>
-        <p>ネットでのハンドルネームは<b>sainu</b>でやっています！これは本名が「さい〇〇」なのと、「犬っぽい」性格？から、「さい」＋「犬」＝「さいぬ」と呼ばれています〜</p>
-        <h4>職業</h4>
-        <p>私は、ソフトウェアエンジニアという仕事をしています💻</p>
-        <h3>好きな映画</h3>
-        <ul>
-          <li>ものづくり</li>
-          <li>映画鑑賞</li>
-          <li>本</li>
-        </ul>
-        <p>最近感動した映画は、<u>戦場のピアニスト</u>ですね！ナチスのユダヤ人大虐殺があった時代のとあるピアニストが主人公の話です。<strike>フィクションです。</strike></p>
-        <h3>好きな言葉</h3>
-        <blockquote>好きは物の上手なれ</blockquote>
-        <blockquote>夢中は努力に勝る</blockquote>
-        <p><br></p>
-      </div>
-    </div>
-    <p style="text-align: center;"><small><a style="color: #333;" target="_blank" href="http://www.goodreads.com/reader/475-great-expectations">Source</a></small></p>
+        <p style="text-align: center;"><small><a style="color: #333;" target="_blank" href="http://www.goodreads.com/reader/475-great-expectations">Source</a></small></p>
 
-    <script src="./js/medium-editor.min.js"></script>
-    <script src="../dist/js/medium-editor-insert.js"></script>
+        <script src="./js/medium-editor.min.js"></script>
+        <script src="../dist/js/medium-editor-insert.js"></script>
 
-    <script>
-      var CustomAddon = function (plugin) {
-        this._plugin = plugin;
-        this._editor = this._plugin.base;
+        <script>
+            var CustomAddon = function (plugin) {
+                this._plugin = plugin;
+                this._editor = this._plugin.base;
 
-        this.options = {
-          label: '<span class="fa fa-list"></span>'
-        };
+                this.options = {
+                    label: '<span class="fa fa-list"></span>'
+                };
 
-        this.label = this.options.label;
-      };
+                this.label = this.options.label;
+            };
 
-      CustomAddon.prototype.handleClick = function () {
-        console.log('hell yeah!');
-      };
+CustomAddon.prototype.handleClick = function () {
+    console.log('hell yeah!');
+};
 
-      var editor = new MediumEditor('.editable', {
-        toolbar: {
-          buttons: [
+var editor = new MediumEditor('.editable', {
+    toolbar: {
+        buttons: [
             'bold', 'italic', 'underline', 'strikethrough',
             'superscript', 'subscript',
             'image',
@@ -74,17 +74,17 @@
             'quote',
             'pre',
             'h1', 'h2', 'h3', 'h4', 'h5', 'h6'
-          ]
-        },
-        buttonLabels: 'fontawesome',
-        extensions: {
-          'insert': new MediumEditorInsert({
+        ]
+    },
+    buttonLabels: 'fontawesome',
+    extensions: {
+        'insert': new MediumEditorInsert({
             addons: {
-              custom: CustomAddon
+                custom: CustomAddon
             }
-          })
-        }
-      });
-    </script>
-  </body>
+        })
+    }
+});
+        </script>
+    </body>
 </html>

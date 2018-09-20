@@ -3,7 +3,7 @@
 $dir = 'uploads';
 
 if (file_exists('uploads') == false) {
-	mkdir($dir, 0777);
+    mkdir($dir, 0777);
 }
 
 $destination = $dir .'/'. $_FILES['file']['name'];
