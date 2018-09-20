@@ -135,7 +135,7 @@ ol li {
 }
 
 #container {
-  width: 960px;
+  max-width: 960px;
   margin: 30px auto;
 }
 
