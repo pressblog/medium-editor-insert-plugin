@@ -8779,6 +8779,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        _this4.insertImage(xhr.responseText);
 	                    }
 	                }
+	                // TODO: xhr.status>=400の時の処理
 	            };
 
 	            data.append("file", file);
@@ -8792,6 +8793,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                img = document.createElement('img');
 	            var domImage = void 0;
 
+	            figure.setAttribute('contenteditable', 'false');
 	            img.alt = '';
 
 	            if (uid) {

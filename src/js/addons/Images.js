@@ -128,6 +128,7 @@ export default class Images {
                     this.insertImage(xhr.responseText);
                 }
             }
+            // TODO: xhr.status>=400の時の処理
         };
 
         data.append("file", file);
@@ -140,6 +141,7 @@ export default class Images {
             img = document.createElement('img');
         let domImage;
 
+        figure.setAttribute('contenteditable', 'false');
         img.alt = '';
 
         if (uid) {
