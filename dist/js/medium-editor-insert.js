@@ -8740,9 +8740,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	                if (_this2.options.preview) {
 	                    _this2.preview(file, uid);
+	                } else {
+	                    _this2.upload(file, uid);
 	                }
-
-	                _this2.upload(file, uid);
 	            });
 
 	            this._plugin.getCore().hideButtons();
@@ -8755,7 +8755,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var reader = new FileReader();
 
 	            reader.onload = function (e) {
-	                _this3.insertImage(e.target.result, uid);
+	                _this3.insertImage(e.target.result, uid, file);
 	            };
 
 	            reader.readAsDataURL(file);
@@ -8787,7 +8787,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	    }, {
 	        key: 'insertImage',
-	        value: function insertImage(url, uid) {
+	        value: function insertImage(url, uid, file) {
+	            var _this5 = this;
+
 	            var el = this._plugin.getCore().selectedElement,
 	                figure = document.createElement('figure'),
 	                img = document.createElement('img');
@@ -8800,21 +8802,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	                img.setAttribute('data-uid', uid);
 	            }
 
-	            // If we're dealing with a preview image,
-	            // we don't have to preload it before displaying
-	            if (url.match(/^data:/)) {
-	                img.src = url;
+	            domImage = new Image();
+	            domImage.onload = function () {
+	                img.src = domImage.src;
 	                figure.appendChild(img);
 	                el.appendChild(figure);
-	            } else {
-	                domImage = new Image();
-	                domImage.onload = function () {
-	                    img.src = domImage.src;
-	                    figure.appendChild(img);
-	                    el.appendChild(figure);
-	                };
-	                domImage.src = url;
-	            }
+
+	                if (url.match(/^data:/)) {
+	                    _this5.upload(file, uid);
+	                }
+	            };
+	            domImage.src = url;
 
 	            el.classList.add(this.elementClassName);
 
@@ -8850,7 +8848,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }, {
 	        key: 'unselectImage',
 	        value: function unselectImage(e) {
-	            var _this5 = this;
+	            var _this6 = this;
 
 	            var el = e.target;
 	            var clickedImage = void 0,
@@ -8864,14 +8862,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	            images = _utils2.default.getElementsByClassName(this._plugin.getEditorElements(), this.activeClassName);
 	            Array.prototype.forEach.call(images, function (image) {
 	                if (image !== clickedImage) {
-	                    image.classList.remove(_this5.activeClassName);
+	                    image.classList.remove(_this6.activeClassName);
 	                }
 	            });
 	        }
 	    }, {
 	        key: 'removeImage',
 	        value: function removeImage(e) {
-	            var _this6 = this;
+	            var _this7 = this;
 
 	            if ([_mediumEditor2.default.util.keyCode.BACKSPACE, _mediumEditor2.default.util.keyCode.DELETE].indexOf(e.which) > -1) {
 	                var images = _utils2.default.getElementsByClassName(this._plugin.getEditorElements(), this.activeClassName),
@@ -8924,7 +8922,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	                    images.forEach(function (image) {
 	                        var wrapper = _utils2.default.getClosestWithClassName(image, 'medium-editor-insert-images');
-	                        _this6.deleteFile(image.src);
+	                        _this7.deleteFile(image.src);
 
 	                        image.parentNode.remove();
 

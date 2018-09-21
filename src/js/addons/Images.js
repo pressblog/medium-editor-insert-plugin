@@ -95,9 +95,9 @@ export default class Images {
 
             if (this.options.preview) {
                 this.preview(file, uid);
+            } else {
+                this.upload(file, uid);
             }
-
-            this.upload(file, uid);
         });
 
         this._plugin.getCore().hideButtons();
@@ -107,7 +107,7 @@ export default class Images {
         const reader = new FileReader();
 
         reader.onload = (e) => {
-            this.insertImage(e.target.result, uid);
+            this.insertImage(e.target.result, uid, file);
         };
 
         reader.readAsDataURL(file);
@@ -135,7 +135,7 @@ export default class Images {
         xhr.send(data);
     }
 
-    insertImage(url, uid) {
+    insertImage(url, uid, file) {
         const el = this._plugin.getCore().selectedElement,
             figure = document.createElement('figure'),
             img = document.createElement('img');
@@ -148,21 +148,18 @@ export default class Images {
             img.setAttribute('data-uid', uid);
         }
 
-        // If we're dealing with a preview image,
-        // we don't have to preload it before displaying
-        if (url.match(/^data:/)) {
-            img.src = url;
+        domImage = new Image();
+        domImage.onload = () => {
+            img.src = domImage.src;
             figure.appendChild(img);
             el.appendChild(figure);
-        } else {
-            domImage = new Image();
-            domImage.onload = () => {
-                img.src = domImage.src;
-                figure.appendChild(img);
-                el.appendChild(figure);
-            };
-            domImage.src = url;
-        }
+
+            if (url.match(/^data:/)) {
+                this.upload(file, uid);
+            }
+
+        };
+        domImage.src = url;
 
         el.classList.add(this.elementClassName);
 
