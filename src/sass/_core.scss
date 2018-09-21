@@ -8,6 +8,9 @@
     a {
         text-decoration: underline;
         cursor: pointer;
+        &:hover {
+            color: $main-color;
+        }
     }
 
     .medium-editor-insert-buttons-show {

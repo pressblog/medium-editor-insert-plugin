@@ -8,6 +8,8 @@
   .medium-editor-insert-buttons a {
     text-decoration: underline;
     cursor: pointer; }
+    .medium-editor-insert-buttons a:hover {
+      color: #15A2DE; }
   .medium-editor-insert-buttons .medium-editor-insert-buttons-show {
     box-sizing: border-box;
     display: inline-block;
@@ -78,4 +80,4 @@
   display: block; }
 
 .medium-editor-insert-image-active {
-  outline: 2px solid #000; }
+  outline: 5px solid #15A2DE; }
