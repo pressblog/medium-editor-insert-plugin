@@ -48,6 +48,7 @@ export default class Images {
     events() {
         this._plugin.on(document, 'click', this.unselectImage.bind(this));
         this._plugin.on(document, 'keydown', this.removeImage.bind(this));
+        this._plugin.on(document, 'keydown', this.moveToNextParagraph.bind(this));
 
         this._plugin.getEditorElements().forEach((editor) => {
             this._plugin.on(editor, 'click', this.selectImage.bind(this));
@@ -285,6 +286,28 @@ export default class Images {
                 });
             }
         }
+    }
+
+    moveToNextParagraph(e) {
+        if (e.which !== MediumEditor.util.keyCode.ENTER) return;
+
+        const images = utils.getElementsByClassName(this._plugin.getEditorElements(), this.activeClassName);
+        const activeImage = images.find(image => { return image.classList.contains(this.activeClassName); });
+
+        if (!activeImage) return;
+
+        e.preventDefault();
+
+        const wrapper = utils.getClosestWithClassName(activeImage, this.elementClassName)
+        const newParagraph = document.createElement('p');
+        newParagraph.appendChild(document.createElement('br'));
+        wrapper.parentNode.insertBefore(newParagraph, wrapper.nextSibling);
+
+        this._editor.selectElement(newParagraph);
+
+        Array.prototype.forEach.call(images, (image) => {
+            image.classList.remove(this.activeClassName);
+        });
     }
 
     deleteFile(image) {

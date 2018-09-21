@@ -8688,6 +8688,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            this._plugin.on(document, 'click', this.unselectImage.bind(this));
 	            this._plugin.on(document, 'keydown', this.removeImage.bind(this));
+	            this._plugin.on(document, 'keydown', this.moveToNextParagraph.bind(this));
 
 	            this._plugin.getEditorElements().forEach(function (editor) {
 	                _this._plugin.on(editor, 'click', _this.selectImage.bind(_this));
@@ -8948,6 +8949,33 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    });
 	                }
 	            }
+	        }
+	    }, {
+	        key: 'moveToNextParagraph',
+	        value: function moveToNextParagraph(e) {
+	            var _this8 = this;
+
+	            if (e.which !== _mediumEditor2.default.util.keyCode.ENTER) return;
+
+	            var images = _utils2.default.getElementsByClassName(this._plugin.getEditorElements(), this.activeClassName);
+	            var activeImage = images.find(function (image) {
+	                return image.classList.contains(_this8.activeClassName);
+	            });
+
+	            if (!activeImage) return;
+
+	            e.preventDefault();
+
+	            var wrapper = _utils2.default.getClosestWithClassName(activeImage, this.elementClassName);
+	            var newParagraph = document.createElement('p');
+	            newParagraph.appendChild(document.createElement('br'));
+	            wrapper.parentNode.insertBefore(newParagraph, wrapper.nextSibling);
+
+	            this._editor.selectElement(newParagraph);
+
+	            Array.prototype.forEach.call(images, function (image) {
+	                image.classList.remove(_this8.activeClassName);
+	            });
 	        }
 	    }, {
 	        key: 'deleteFile',
