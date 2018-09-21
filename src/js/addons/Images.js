@@ -76,18 +76,6 @@ export default class Images {
     }
 
     uploadFiles() {
-        const paragraph = this._plugin.getCore().selectedElement;
-
-        // Replace paragraph with div, because figure is a block element
-        // and can't be nested inside paragraphs
-        if (paragraph.nodeName.toLowerCase() === 'p') {
-            const div = document.createElement('div');
-
-            paragraph.parentNode.insertBefore(div, paragraph);
-            this._plugin.getCore().selectElement(div);
-            paragraph.remove();
-        }
-
         Array.prototype.forEach.call(this._input.files, (file) => {
             // Generate uid for this image, so we can identify it later
             // and we can replace preview image with uploaded one
@@ -120,7 +108,10 @@ export default class Images {
         xhr.open("POST", this.options.uploadUrl, true);
         xhr.onreadystatechange = () => {
             if (xhr.readyState === 4 && xhr.status === 200) {
-                const image = this._plugin.getCore().selectedElement.querySelector(`[data-uid="${uid}"]`);
+                const currentEditor = this._editor.elements.find(editor => {
+                    return editor.contains(this._plugin.getCore().selectedElement);
+                });
+                const image = currentEditor.querySelector(`[data-uid="${uid}"]`);
 
                 if (image) {
                     this.replaceImage(image, xhr.responseText);
@@ -136,9 +127,14 @@ export default class Images {
     }
 
     insertImage(url, uid, file) {
-        const el = this._plugin.getCore().selectedElement,
-            figure = document.createElement('figure'),
-            img = document.createElement('img');
+        const selectedElement = this._plugin.getCore().selectedElement;
+        const figure = document.createElement('figure');
+
+        selectedElement.parentNode.insertBefore(figure, selectedElement);
+        this._plugin.getCore().selectElement(figure);
+        selectedElement.remove();
+
+        const img = document.createElement('img');
         let domImage;
 
         figure.setAttribute('contenteditable', 'false');
@@ -152,7 +148,6 @@ export default class Images {
         domImage.onload = () => {
             img.src = domImage.src;
             figure.appendChild(img);
-            el.appendChild(figure);
 
             if (url.match(/^data:/)) {
                 this.upload(file, uid);
@@ -161,7 +156,12 @@ export default class Images {
         };
         domImage.src = url;
 
-        el.classList.add(this.elementClassName);
+        figure.classList.add(this.elementClassName);
+
+        const newParagraph = document.createElement('p');
+        newParagraph.appendChild(document.createElement('br'));
+        figure.parentNode.insertBefore(newParagraph, figure.nextSibling);
+        this._plugin.getCore().selectElement(newParagraph);
 
         // Return domImage so we can test this function easily
         return domImage;
@@ -229,7 +229,7 @@ export default class Images {
                     sibling = focusedElement.nextElementSibling;
                 }
 
-                if (sibling && sibling.classList.contains('medium-editor-insert-images')) {
+                if (sibling && sibling.classList.contains(this.elementClassName)) {
                     const newImages = sibling.getElementsByTagName('img');
                     Array.prototype.forEach.call(newImages, (image) => {
                         images.push(image);
@@ -243,7 +243,7 @@ export default class Images {
                     let wrappers, newImages;
                     temp.innerHTML = selectedHtml;
 
-                    wrappers = temp.getElementsByClassName('medium-editor-insert-images');
+                    wrappers = temp.getElementsByClassName(this.elementClassName);
                     newImages = utils.getElementsByTagName(wrappers, 'img');
 
                     Array.prototype.forEach.call(newImages, (image) => {
@@ -258,7 +258,7 @@ export default class Images {
                 }
 
                 images.forEach((image) => {
-                    const wrapper = utils.getClosestWithClassName(image, 'medium-editor-insert-images');
+                    const wrapper = utils.getClosestWithClassName(image, this.elementClassName);
                     this.deleteFile(image.src);
 
                     image.parentNode.remove();

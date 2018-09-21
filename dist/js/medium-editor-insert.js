@@ -8721,18 +8721,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	        value: function uploadFiles() {
 	            var _this2 = this;
 
-	            var paragraph = this._plugin.getCore().selectedElement;
-
-	            // Replace paragraph with div, because figure is a block element
-	            // and can't be nested inside paragraphs
-	            if (paragraph.nodeName.toLowerCase() === 'p') {
-	                var div = document.createElement('div');
-
-	                paragraph.parentNode.insertBefore(div, paragraph);
-	                this._plugin.getCore().selectElement(div);
-	                paragraph.remove();
-	            }
-
 	            Array.prototype.forEach.call(this._input.files, function (file) {
 	                // Generate uid for this image, so we can identify it later
 	                // and we can replace preview image with uploaded one
@@ -8771,7 +8759,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	            xhr.open("POST", this.options.uploadUrl, true);
 	            xhr.onreadystatechange = function () {
 	                if (xhr.readyState === 4 && xhr.status === 200) {
-	                    var image = _this4._plugin.getCore().selectedElement.querySelector('[data-uid="' + uid + '"]');
+	                    var currentEditor = _this4._editor.elements.find(function (editor) {
+	                        return editor.contains(_this4._plugin.getCore().selectedElement);
+	                    });
+	                    var image = currentEditor.querySelector('[data-uid="' + uid + '"]');
 
 	                    if (image) {
 	                        _this4.replaceImage(image, xhr.responseText);
@@ -8790,9 +8781,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	        value: function insertImage(url, uid, file) {
 	            var _this5 = this;
 
-	            var el = this._plugin.getCore().selectedElement,
-	                figure = document.createElement('figure'),
-	                img = document.createElement('img');
+	            var selectedElement = this._plugin.getCore().selectedElement;
+	            var figure = document.createElement('figure');
+
+	            selectedElement.parentNode.insertBefore(figure, selectedElement);
+	            this._plugin.getCore().selectElement(figure);
+	            selectedElement.remove();
+
+	            var img = document.createElement('img');
 	            var domImage = void 0;
 
 	            figure.setAttribute('contenteditable', 'false');
@@ -8806,7 +8802,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	            domImage.onload = function () {
 	                img.src = domImage.src;
 	                figure.appendChild(img);
-	                el.appendChild(figure);
 
 	                if (url.match(/^data:/)) {
 	                    _this5.upload(file, uid);
@@ -8814,7 +8809,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	            };
 	            domImage.src = url;
 
-	            el.classList.add(this.elementClassName);
+	            figure.classList.add(this.elementClassName);
+
+	            var newParagraph = document.createElement('p');
+	            newParagraph.appendChild(document.createElement('br'));
+	            figure.parentNode.insertBefore(newParagraph, figure.nextSibling);
+	            this._plugin.getCore().selectElement(newParagraph);
 
 	            // Return domImage so we can test this function easily
 	            return domImage;
@@ -8891,7 +8891,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        sibling = focusedElement.nextElementSibling;
 	                    }
 
-	                    if (sibling && sibling.classList.contains('medium-editor-insert-images')) {
+	                    if (sibling && sibling.classList.contains(this.elementClassName)) {
 	                        var newImages = sibling.getElementsByTagName('img');
 	                        Array.prototype.forEach.call(newImages, function (image) {
 	                            images.push(image);
@@ -8906,7 +8906,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                            _newImages = void 0;
 	                        temp.innerHTML = selectedHtml;
 
-	                        wrappers = temp.getElementsByClassName('medium-editor-insert-images');
+	                        wrappers = temp.getElementsByClassName(this.elementClassName);
 	                        _newImages = _utils2.default.getElementsByTagName(wrappers, 'img');
 
 	                        Array.prototype.forEach.call(_newImages, function (image) {
@@ -8921,7 +8921,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    }
 
 	                    images.forEach(function (image) {
-	                        var wrapper = _utils2.default.getClosestWithClassName(image, 'medium-editor-insert-images');
+	                        var wrapper = _utils2.default.getClosestWithClassName(image, _this7.elementClassName);
 	                        _this7.deleteFile(image.src);
 
 	                        image.parentNode.remove();
