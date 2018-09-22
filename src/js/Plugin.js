@@ -6,6 +6,7 @@ const MediumEditorInsert = MediumEditor.Extension.extend({
 
     addons: {
         images: true,
+        video: true,
         embeds: true
     },
 

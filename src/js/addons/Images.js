@@ -60,6 +60,7 @@ export default class Images {
     handleClick() {
         this._input = document.createElement('input');
         this._input.type = 'file';
+        this._input.accept = 'image/*';
         this._input.multiple = true;
 
         this._plugin.on(this._input, 'change', this.uploadFiles.bind(this));

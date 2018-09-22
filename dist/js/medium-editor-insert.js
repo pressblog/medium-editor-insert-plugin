@@ -64,7 +64,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _mediumEditor2 = _interopRequireDefault(_mediumEditor);
 
-	var _Core = __webpack_require__(3);
+	var _Core = __webpack_require__(4);
 
 	var _Core2 = _interopRequireDefault(_Core);
 
@@ -75,6 +75,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    addons: {
 	        images: true,
+	        video: true,
 	        embeds: true
 	    },
 
@@ -8004,7 +8005,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return MediumEditor;
 	}()));
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9)))
 
 /***/ }),
 /* 2 */
@@ -8097,9 +8098,207 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _utils2 = _interopRequireDefault(_utils);
 
+	var _ToolbarButton = __webpack_require__(5);
+
+	var _ToolbarButton2 = _interopRequireDefault(_ToolbarButton);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var MediumEditorToolbar = _mediumEditor2.default.extensions.toolbar;
+
+	var Toolbar = function (_MediumEditorToolbar) {
+	    _inherits(Toolbar, _MediumEditorToolbar);
+
+	    function Toolbar(options) {
+	        _classCallCheck(this, Toolbar);
+
+	        var _this = _possibleConstructorReturn(this, (Toolbar.__proto__ || Object.getPrototypeOf(Toolbar)).call(this, options));
+
+	        _this.name = options.type + 'Toolbar';
+
+	        options.buttons.forEach(function (buttonOptions) {
+	            var button = new _ToolbarButton2.default(Object.assign({}, {
+	                window: _this.plugin.window,
+	                document: _this.plugin.document,
+	                base: _this.plugin.base
+	            }, buttonOptions));
+
+	            button.init();
+	            _this.plugin.base.extensions.push(button);
+	        });
+
+	        _this.window = options.plugin.window;
+	        _this.document = options.plugin.document;
+	        _this.base = options.plugin.base;
+
+	        _this.init();
+	        return _this;
+	    }
+
+	    _createClass(Toolbar, [{
+	        key: 'createToolbar',
+	        value: function createToolbar() {
+	            var toolbar = this.document.createElement('div');
+
+	            toolbar.id = 'medium-editor-insert-' + this.type + '-toolbar-' + this.getEditorId();
+	            toolbar.className = 'medium-editor-toolbar';
+
+	            if (this.static) {
+	                toolbar.className += ' static-toolbar';
+	            } else if (this.relativeContainer) {
+	                toolbar.className += ' medium-editor-relative-toolbar';
+	            } else {
+	                toolbar.className += ' medium-editor-stalker-toolbar';
+	            }
+
+	            toolbar.appendChild(this.createToolbarButtons());
+
+	            // Add any forms that extensions may have
+	            this.forEachExtension(function (extension) {
+	                if (extension.hasForm) {
+	                    toolbar.appendChild(extension.getForm());
+	                }
+	            });
+
+	            this.attachEventHandlers();
+
+	            return toolbar;
+	        }
+	    }, {
+	        key: 'createToolbarButtons',
+	        value: function createToolbarButtons() {
+	            var _this2 = this;
+
+	            var ul = this.document.createElement('ul');
+	            var li = void 0,
+	                btn = void 0,
+	                buttons = void 0,
+	                extension = void 0,
+	                buttonName = void 0,
+	                buttonOpts = void 0;
+
+	            ul.id = 'medium-editor-insert-' + this.type + '-toolbar-actions' + this.getEditorId();
+	            ul.className = 'medium-editor-toolbar-actions';
+	            ul.style.display = 'block';
+
+	            this.buttons.forEach(function (button) {
+	                if (typeof button === 'string') {
+	                    buttonName = button;
+	                    buttonOpts = null;
+	                } else {
+	                    buttonName = button.name;
+	                    buttonOpts = button;
+	                }
+
+	                // If the button already exists as an extension, it'll be returned
+	                // othwerise it'll create the default built-in button
+	                extension = _this2.base.addBuiltInExtension(buttonName, buttonOpts);
+
+	                if (extension && typeof extension.getButton === 'function') {
+	                    btn = extension.getButton(_this2.base);
+	                    li = _this2.document.createElement('li');
+	                    if (_mediumEditor2.default.util.isElement(btn)) {
+	                        li.appendChild(btn);
+	                    } else {
+	                        li.innerHTML = btn;
+	                    }
+	                    ul.appendChild(li);
+	                }
+	            }, this);
+
+	            buttons = ul.querySelectorAll('button');
+	            if (buttons.length > 0) {
+	                buttons[0].classList.add(this.firstButtonClass);
+	                buttons[buttons.length - 1].classList.add(this.lastButtonClass);
+	            }
+
+	            return ul;
+	        }
+	    }, {
+	        key: 'checkState',
+	        value: function checkState() {
+	            var _this3 = this;
+
+	            var activeElements = void 0;
+
+	            if (this.base.preventSelectionUpdates) {
+	                return;
+	            }
+
+	            // Wait for elements to be selected
+	            setTimeout(function () {
+	                activeElements = _utils2.default.getElementsByClassName(_this3.getEditorElements(), _this3.activeClassName);
+
+	                // Hide toolbar when no elements are selected
+	                if (activeElements.length === 0) {
+	                    return _this3.hideToolbar();
+	                }
+
+	                // Now we know there's a focused editable with a selection
+	                _this3.showAndUpdateToolbar();
+	            }, 10);
+	        }
+	    }, {
+	        key: 'setToolbarPosition',
+	        value: function setToolbarPosition() {
+	            var container = _utils2.default.getElementsByClassName(this.getEditorElements(), this.activeClassName)[0];
+	            var anchorPreview = void 0;
+
+	            // If there isn't a valid selection, bail
+	            if (!container) {
+	                return this;
+	            }
+
+	            this.showToolbar();
+	            this.positionStaticToolbar(container);
+
+	            anchorPreview = this.base.getExtensionByName('anchor-preview');
+
+	            if (anchorPreview && typeof anchorPreview.hidePreview === 'function') {
+	                anchorPreview.hidePreview();
+	            }
+	        }
+	    }]);
+
+	    return Toolbar;
+	}(MediumEditorToolbar);
+
+	exports.default = Toolbar;
+	module.exports = exports['default'];
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _mediumEditor = __webpack_require__(1);
+
+	var _mediumEditor2 = _interopRequireDefault(_mediumEditor);
+
+	var _utils = __webpack_require__(2);
+
+	var _utils2 = _interopRequireDefault(_utils);
+
 	var _Images = __webpack_require__(7);
 
 	var _Images2 = _interopRequireDefault(_Images);
+
+	var _Video = __webpack_require__(8);
+
+	var _Video2 = _interopRequireDefault(_Video);
 
 	var _Embeds = __webpack_require__(6);
 
@@ -8151,6 +8350,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            // Initialize all default addons, we'll delete ones we don't need later
 	            this._plugin._initializedAddons = {
 	                images: new _Images2.default(this._plugin, this._plugin.addons.images),
+	                video: new _Video2.default(this._plugin, this._plugin.addons.video),
 	                embeds: new _Embeds2.default(this._plugin, this._plugin.addons.embeds)
 	            };
 
@@ -8346,200 +8546,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ }),
-/* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _mediumEditor = __webpack_require__(1);
-
-	var _mediumEditor2 = _interopRequireDefault(_mediumEditor);
-
-	var _utils = __webpack_require__(2);
-
-	var _utils2 = _interopRequireDefault(_utils);
-
-	var _ToolbarButton = __webpack_require__(5);
-
-	var _ToolbarButton2 = _interopRequireDefault(_ToolbarButton);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var MediumEditorToolbar = _mediumEditor2.default.extensions.toolbar;
-
-	var Toolbar = function (_MediumEditorToolbar) {
-	    _inherits(Toolbar, _MediumEditorToolbar);
-
-	    function Toolbar(options) {
-	        _classCallCheck(this, Toolbar);
-
-	        var _this = _possibleConstructorReturn(this, (Toolbar.__proto__ || Object.getPrototypeOf(Toolbar)).call(this, options));
-
-	        _this.name = options.type + 'Toolbar';
-
-	        options.buttons.forEach(function (buttonOptions) {
-	            var button = new _ToolbarButton2.default(Object.assign({}, {
-	                window: _this.plugin.window,
-	                document: _this.plugin.document,
-	                base: _this.plugin.base
-	            }, buttonOptions));
-
-	            button.init();
-	            _this.plugin.base.extensions.push(button);
-	        });
-
-	        _this.window = options.plugin.window;
-	        _this.document = options.plugin.document;
-	        _this.base = options.plugin.base;
-
-	        _this.init();
-	        return _this;
-	    }
-
-	    _createClass(Toolbar, [{
-	        key: 'createToolbar',
-	        value: function createToolbar() {
-	            var toolbar = this.document.createElement('div');
-
-	            toolbar.id = 'medium-editor-insert-' + this.type + '-toolbar-' + this.getEditorId();
-	            toolbar.className = 'medium-editor-toolbar';
-
-	            if (this.static) {
-	                toolbar.className += ' static-toolbar';
-	            } else if (this.relativeContainer) {
-	                toolbar.className += ' medium-editor-relative-toolbar';
-	            } else {
-	                toolbar.className += ' medium-editor-stalker-toolbar';
-	            }
-
-	            toolbar.appendChild(this.createToolbarButtons());
-
-	            // Add any forms that extensions may have
-	            this.forEachExtension(function (extension) {
-	                if (extension.hasForm) {
-	                    toolbar.appendChild(extension.getForm());
-	                }
-	            });
-
-	            this.attachEventHandlers();
-
-	            return toolbar;
-	        }
-	    }, {
-	        key: 'createToolbarButtons',
-	        value: function createToolbarButtons() {
-	            var _this2 = this;
-
-	            var ul = this.document.createElement('ul');
-	            var li = void 0,
-	                btn = void 0,
-	                buttons = void 0,
-	                extension = void 0,
-	                buttonName = void 0,
-	                buttonOpts = void 0;
-
-	            ul.id = 'medium-editor-insert-' + this.type + '-toolbar-actions' + this.getEditorId();
-	            ul.className = 'medium-editor-toolbar-actions';
-	            ul.style.display = 'block';
-
-	            this.buttons.forEach(function (button) {
-	                if (typeof button === 'string') {
-	                    buttonName = button;
-	                    buttonOpts = null;
-	                } else {
-	                    buttonName = button.name;
-	                    buttonOpts = button;
-	                }
-
-	                // If the button already exists as an extension, it'll be returned
-	                // othwerise it'll create the default built-in button
-	                extension = _this2.base.addBuiltInExtension(buttonName, buttonOpts);
-
-	                if (extension && typeof extension.getButton === 'function') {
-	                    btn = extension.getButton(_this2.base);
-	                    li = _this2.document.createElement('li');
-	                    if (_mediumEditor2.default.util.isElement(btn)) {
-	                        li.appendChild(btn);
-	                    } else {
-	                        li.innerHTML = btn;
-	                    }
-	                    ul.appendChild(li);
-	                }
-	            }, this);
-
-	            buttons = ul.querySelectorAll('button');
-	            if (buttons.length > 0) {
-	                buttons[0].classList.add(this.firstButtonClass);
-	                buttons[buttons.length - 1].classList.add(this.lastButtonClass);
-	            }
-
-	            return ul;
-	        }
-	    }, {
-	        key: 'checkState',
-	        value: function checkState() {
-	            var _this3 = this;
-
-	            var activeElements = void 0;
-
-	            if (this.base.preventSelectionUpdates) {
-	                return;
-	            }
-
-	            // Wait for elements to be selected
-	            setTimeout(function () {
-	                activeElements = _utils2.default.getElementsByClassName(_this3.getEditorElements(), _this3.activeClassName);
-
-	                // Hide toolbar when no elements are selected
-	                if (activeElements.length === 0) {
-	                    return _this3.hideToolbar();
-	                }
-
-	                // Now we know there's a focused editable with a selection
-	                _this3.showAndUpdateToolbar();
-	            }, 10);
-	        }
-	    }, {
-	        key: 'setToolbarPosition',
-	        value: function setToolbarPosition() {
-	            var container = _utils2.default.getElementsByClassName(this.getEditorElements(), this.activeClassName)[0];
-	            var anchorPreview = void 0;
-
-	            // If there isn't a valid selection, bail
-	            if (!container) {
-	                return this;
-	            }
-
-	            this.showToolbar();
-	            this.positionStaticToolbar(container);
-
-	            anchorPreview = this.base.getExtensionByName('anchor-preview');
-
-	            if (anchorPreview && typeof anchorPreview.hidePreview === 'function') {
-	                anchorPreview.hidePreview();
-	            }
-	        }
-	    }]);
-
-	    return Toolbar;
-	}(MediumEditorToolbar);
-
-	exports.default = Toolbar;
-	module.exports = exports['default'];
-
-/***/ }),
 /* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -8640,7 +8646,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _utils2 = _interopRequireDefault(_utils);
 
-	var _Toolbar = __webpack_require__(4);
+	var _Toolbar = __webpack_require__(3);
 
 	var _Toolbar2 = _interopRequireDefault(_Toolbar);
 
@@ -8708,6 +8714,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        value: function handleClick() {
 	            this._input = document.createElement('input');
 	            this._input.type = 'file';
+	            this._input.accept = 'image/*';
 	            this._input.multiple = true;
 
 	            this._plugin.on(this._input, 'change', this.uploadFiles.bind(this));
@@ -8989,6 +8996,284 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ }),
 /* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _mediumEditor = __webpack_require__(1);
+
+	var _mediumEditor2 = _interopRequireDefault(_mediumEditor);
+
+	var _utils = __webpack_require__(2);
+
+	var _utils2 = _interopRequireDefault(_utils);
+
+	var _Toolbar = __webpack_require__(3);
+
+	var _Toolbar2 = _interopRequireDefault(_Toolbar);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var Video = function () {
+	    function Video(plugin, options) {
+	        _classCallCheck(this, Video);
+
+	        this.options = {
+	            label: '<span class="fa fa-video-camera"></span>',
+	            aria: '動画アップロード',
+	            preview: true,
+	            uploadUrl: 'upload.php',
+	            maxBytes: 8 * 1000 * 1000 // 8MB
+	        };
+
+	        Object.assign(this.options, options);
+
+	        this._plugin = plugin;
+	        this._editor = this._plugin.base;
+	        this.elementClassName = 'medium-editor-insert-video';
+	        this.activeClassName = this.elementClassName + '-active';
+	        this.overlayClassName = this.elementClassName + '-overlay';
+	        this.label = this.options.label;
+
+	        this.events();
+	    }
+
+	    _createClass(Video, [{
+	        key: 'events',
+	        value: function events() {
+	            var _this = this;
+
+	            this._plugin.on(document, 'click', this.unselectVideo.bind(this));
+	            this._plugin.on(document, 'keydown', this.moveToNextParagraph.bind(this));
+	            this._plugin.on(document, 'keydown', this.removeVideo.bind(this));
+	            this._plugin.on(document, 'keydown', this.caretMoveToAndSelectImage.bind(this));
+
+	            this._plugin.getEditorElements().forEach(function (editor) {
+	                _this._plugin.on(editor, 'click', _this.selectVideo.bind(_this));
+	            });
+	        }
+	    }, {
+	        key: 'handleClick',
+	        value: function handleClick() {
+	            this._input = document.createElement('input');
+	            this._input.type = 'file';
+	            this._input.accept = 'video/*';
+
+	            this._plugin.on(this._input, 'change', this.uploadFile.bind(this));
+
+	            this._input.click();
+	        }
+	    }, {
+	        key: 'selectVideo',
+	        value: function selectVideo(e) {
+	            var el = e.target;
+
+	            if (el.classList.contains(this.overlayClassName) && _utils2.default.getClosestWithClassName(e.target, this.elementClassName)) {
+	                el.classList.add(this.activeClassName);
+
+	                this._editor.selectElement(el);
+	            }
+	        }
+
+	        // TODO: Image.removeImageと全く同じ処理
+
+	    }, {
+	        key: 'removeVideo',
+	        value: function removeVideo(e) {
+	            if ([_mediumEditor2.default.util.keyCode.BACKSPACE, _mediumEditor2.default.util.keyCode.DELETE].indexOf(e.which) === -1) return;
+
+	            var selection = window.getSelection();
+	            if (!selection || !selection.rangeCount) return;
+
+	            var range = _mediumEditor2.default.selection.getSelectionRange(document),
+	                focusedElement = _mediumEditor2.default.selection.getSelectedParentElement(range);
+
+	            if (focusedElement.classList.contains(this.activeClassName)) {
+	                var wrapper = _utils2.default.getClosestWithClassName(focusedElement, this.elementClassName);
+
+	                var newParagraph = document.createElement('p');
+	                wrapper.parentNode.replaceChild(newParagraph, wrapper);
+
+	                this._editor.selectElement(newParagraph);
+
+	                newParagraph.appendChild(document.createElement('br'));
+
+	                e.preventDefault();
+	            }
+	        }
+	    }, {
+	        key: 'unselectVideo',
+	        value: function unselectVideo(e) {
+	            var _this2 = this;
+
+	            var el = e.target;
+	            var selectedVideo = void 0,
+	                videos = void 0;
+
+	            if (el.classList.contains(this.activeClassName)) {
+	                selectedVideo = el;
+	            }
+
+	            videos = _utils2.default.getElementsByClassName(this._plugin.getEditorElements(), this.activeClassName);
+	            Array.prototype.forEach.call(videos, function (video) {
+	                if (video !== selectedVideo) {
+	                    video.classList.remove(_this2.activeClassName);
+	                }
+	            });
+	        }
+	    }, {
+	        key: 'uploadFile',
+	        value: function uploadFile() {
+	            var file = this._input.files[0];
+
+	            if (file.size > this.options.maxBytes) {
+	                alert('ファイルサイズが大きすぎてアップロードできません m(_ _)m');
+	            }
+
+	            this.insert(file);
+
+	            this._plugin.getCore().hideButtons();
+	        }
+	    }, {
+	        key: 'insert',
+	        value: function insert(file) {
+	            var video = document.createElement('video'),
+	                source = document.createElement('source'),
+	                figure = document.createElement('figure'),
+	                selectedElement = this._plugin.getCore().selectedElement;
+
+	            figure.innerHTML = ['<div class="' + this.elementClassName + '-wrapper">', '<video controls muted="true"></video>', '<div class="' + this.overlayClassName + '"></div>', '</div>'].join('');
+	            figure.setAttribute('contenteditable', false);
+	            figure.classList.add(this.elementClassName);
+
+	            selectedElement.parentNode.insertBefore(figure, selectedElement);
+	            selectedElement.remove();
+
+	            var newParagraph = document.createElement('p');
+	            newParagraph.appendChild(document.createElement('br'));
+	            figure.parentNode.insertBefore(newParagraph, figure.nextSibling);
+	            this._plugin.getCore().selectElement(newParagraph);
+
+	            this.upload(file, figure);
+	        }
+	    }, {
+	        key: 'replace',
+	        value: function replace(url, root) {
+	            var source = document.createElement('source'),
+	                video = root.querySelector('video');
+
+	            source.src = url;
+
+	            video.appendChild(source);
+	        }
+	    }, {
+	        key: 'upload',
+	        value: function upload(file, root) {
+	            var _this3 = this;
+
+	            var xhr = new XMLHttpRequest(),
+	                data = new FormData();
+
+	            xhr.open("POST", this.options.uploadUrl, true);
+	            xhr.onreadystatechange = function () {
+	                if (xhr.readyState === 4 && xhr.status === 200) {
+	                    _this3.replace(xhr.responseText, root);
+	                }
+	            };
+
+	            data.append("file", file);
+	            xhr.send(data);
+	        }
+
+	        // TODO: Imageと同じ
+
+	    }, {
+	        key: 'moveToNextParagraph',
+	        value: function moveToNextParagraph(e) {
+	            var _this4 = this;
+
+	            if (e.which !== _mediumEditor2.default.util.keyCode.ENTER) return;
+
+	            var videos = _utils2.default.getElementsByClassName(this._plugin.getEditorElements(), this.activeClassName);
+	            var activeVideo = videos.find(function (video) {
+	                return video.classList.contains(_this4.activeClassName);
+	            });
+
+	            if (!activeVideo) return;
+
+	            e.preventDefault();
+
+	            var root = _utils2.default.getClosestWithClassName(activeVideo, this.elementClassName);
+	            var newParagraph = document.createElement('p');
+	            root.parentNode.insertBefore(newParagraph, root.nextElementSibling);
+
+	            this._editor.selectElement(newParagraph);
+
+	            newParagraph.appendChild(document.createElement('br'));
+
+	            Array.prototype.forEach.call(videos, function (video) {
+	                video.classList.remove(_this4.activeClassName);
+	            });
+	        }
+
+	        // TODO: sibling.querySelectorのところがImageと違うだけ
+
+	    }, {
+	        key: 'caretMoveToAndSelectImage',
+	        value: function caretMoveToAndSelectImage(e) {
+	            var el = e.target;
+
+	            if ([_mediumEditor2.default.util.keyCode.BACKSPACE, _mediumEditor2.default.util.keyCode.DELETE].indexOf(e.which) === -1) return;
+
+	            if (_mediumEditor2.default.selection.getSelectionHtml(document)) return;
+
+	            var selection = window.getSelection();
+
+	            if (!selection || !selection.rangeCount) return;
+
+	            var range = _mediumEditor2.default.selection.getSelectionRange(document),
+	                focusedElement = _mediumEditor2.default.selection.getSelectedParentElement(range),
+	                caretPosition = _mediumEditor2.default.selection.getCaretOffsets(focusedElement).left;
+	            var sibling = void 0;
+
+	            // Is backspace pressed and caret is at the beginning of a paragraph, get previous element
+	            if (e.which === _mediumEditor2.default.util.keyCode.BACKSPACE && caretPosition === 0) {
+	                sibling = focusedElement.previousElementSibling;
+	                // Is del pressed and caret is at the end of a paragraph, get next element
+	            } else if (e.which === _mediumEditor2.default.util.keyCode.DELETE && caretPosition === focusedElement.innerText.length) {
+	                sibling = focusedElement.nextElementSibling;
+	            }
+
+	            if (!sibling || !sibling.classList.contains(this.elementClassName)) return;
+
+	            var video = sibling.querySelector('.' + this.overlayClassName);
+	            video.classList.add(this.activeClassName);
+	            this._editor.selectElement(video);
+
+	            if (focusedElement.textContent.length === 0) {
+	                focusedElement.remove();
+	            }
+
+	            e.preventDefault();
+	        }
+	    }]);
+
+	    return Video;
+	}();
+
+	exports.default = Video;
+	module.exports = exports['default'];
+
+/***/ }),
+/* 9 */
 /***/ (function(module, exports) {
 
 	// shim for using process in browser

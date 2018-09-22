@@ -1,6 +1,7 @@
 import MediumEditor from 'medium-editor';
 import utils from './utils';
 import Images from './addons/Images';
+import Video from './addons/Video';
 import Embeds from './addons/Embeds';
 
 export default class Core {
@@ -37,6 +38,7 @@ export default class Core {
         // Initialize all default addons, we'll delete ones we don't need later
         this._plugin._initializedAddons = {
             images: new Images(this._plugin, this._plugin.addons.images),
+            video: new Video(this._plugin, this._plugin.addons.video),
             embeds: new Embeds(this._plugin, this._plugin.addons.embeds)
         };
 

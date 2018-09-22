@@ -81,3 +81,18 @@
 
 .medium-editor-insert-image-active {
   outline: 5px solid #15A2DE; }
+
+.medium-editor-insert-video-wrapper {
+  position: relative;
+  display: inline-block;
+  font-size: 0; }
+
+.medium-editor-insert-video-overlay {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0; }
+
+.medium-editor-insert-video-active {
+  outline: 5px solid #15A2DE; }
