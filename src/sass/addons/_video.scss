@@ -1,4 +1,8 @@
 .medium-editor-insert-video {
+    video {
+        max-width: 100%;
+    }
+
     &-wrapper {
         position: relative;
         display: inline-block;
