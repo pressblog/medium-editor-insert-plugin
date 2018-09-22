@@ -3,6 +3,7 @@ import utils from './utils';
 import Images from './addons/Images';
 import Video from './addons/Video';
 import Embeds from './addons/Embeds';
+import Horizon from './addons/Horizon';
 
 export default class Core {
 
@@ -39,7 +40,8 @@ export default class Core {
         this._plugin._initializedAddons = {
             images: new Images(this._plugin, this._plugin.addons.images),
             video: new Video(this._plugin, this._plugin.addons.video),
-            embeds: new Embeds(this._plugin, this._plugin.addons.embeds)
+            embeds: new Embeds(this._plugin, this._plugin.addons.embeds),
+            horizon: new Horizon(this._plugin, this._plugin.addons.horizon)
         };
 
         Object.keys(this._plugin.addons).forEach((name) => {

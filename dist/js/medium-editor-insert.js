@@ -76,7 +76,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    addons: {
 	        images: true,
 	        video: true,
-	        embeds: true
+	        embeds: true,
+	        horizon: true
 	    },
 
 	    _initializedAddons: {},
@@ -8005,7 +8006,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return MediumEditor;
 	}()));
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10)))
 
 /***/ }),
 /* 2 */
@@ -8292,17 +8293,21 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _utils2 = _interopRequireDefault(_utils);
 
-	var _Images = __webpack_require__(7);
+	var _Images = __webpack_require__(8);
 
 	var _Images2 = _interopRequireDefault(_Images);
 
-	var _Video = __webpack_require__(8);
+	var _Video = __webpack_require__(9);
 
 	var _Video2 = _interopRequireDefault(_Video);
 
 	var _Embeds = __webpack_require__(6);
 
 	var _Embeds2 = _interopRequireDefault(_Embeds);
+
+	var _Horizon = __webpack_require__(7);
+
+	var _Horizon2 = _interopRequireDefault(_Horizon);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -8351,7 +8356,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this._plugin._initializedAddons = {
 	                images: new _Images2.default(this._plugin, this._plugin.addons.images),
 	                video: new _Video2.default(this._plugin, this._plugin.addons.video),
-	                embeds: new _Embeds2.default(this._plugin, this._plugin.addons.embeds)
+	                embeds: new _Embeds2.default(this._plugin, this._plugin.addons.embeds),
+	                horizon: new _Horizon2.default(this._plugin, this._plugin.addons.horizon)
 	            };
 
 	            Object.keys(this._plugin.addons).forEach(function (name) {
@@ -8628,6 +8634,97 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ }),
 /* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _mediumEditor = __webpack_require__(1);
+
+	var _mediumEditor2 = _interopRequireDefault(_mediumEditor);
+
+	var _utils = __webpack_require__(2);
+
+	var _utils2 = _interopRequireDefault(_utils);
+
+	var _Toolbar = __webpack_require__(3);
+
+	var _Toolbar2 = _interopRequireDefault(_Toolbar);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var Horizon = function () {
+	    function Horizon(plugin, options) {
+	        _classCallCheck(this, Horizon);
+
+	        this.options = {
+	            label: '<span>--</span>',
+	            aria: '区切り線'
+	        };
+
+	        Object.assign(this.options, options);
+
+	        this._plugin = plugin;
+	        this._editor = this._plugin.base;
+	        this.elementClassName = 'medium-editor-insert-hr';
+	        this.activeClassName = this.elementClassName + '-active';
+
+	        this.label = this.options.label;
+
+	        this.events();
+	    }
+
+	    _createClass(Horizon, [{
+	        key: 'events',
+	        value: function events() {
+	            var _this = this;
+
+	            this._plugin.getEditorElements().forEach(function (editor) {
+	                _this._plugin.on(editor, 'click', _this.returnNewParagraph.bind(_this));
+	            });
+	        }
+	    }, {
+	        key: 'handleClick',
+	        value: function handleClick() {
+	            var selectedElement = this._plugin.getCore().selectedElement,
+	                hr = document.createElement('hr');
+
+	            hr.classList.add(this.elementClassName);
+
+	            selectedElement.parentNode.replaceChild(hr, selectedElement);
+	        }
+	    }, {
+	        key: 'returnNewParagraph',
+	        value: function returnNewParagraph(e) {
+	            var el = e.target;
+
+	            if (el.classList.contains(this.elementClassName)) {
+	                var newParagraph = document.createElement('p');
+
+	                el.parentNode.insertBefore(newParagraph, el.nextElementSibling);
+
+	                this._editor.selectElement(newParagraph);
+
+	                newParagraph.appendChild(document.createElement('br'));
+	            }
+	        }
+	    }]);
+
+	    return Horizon;
+	}();
+
+	exports.default = Horizon;
+	module.exports = exports['default'];
+
+/***/ }),
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -8995,7 +9092,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -9273,7 +9370,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports) {
 
 	// shim for using process in browser

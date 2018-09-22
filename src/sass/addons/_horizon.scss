@@ -1,0 +1,23 @@
+$size: 14px;
+
+.medium-editor-insert-hr {
+    margin-top: 52px;
+    margin-bottom: 42px;
+    border: none;
+    height: $size * 3;
+    text-align: center;
+
+    &:before {
+        content: '＊＊＊';
+        display: block;
+        color: #444;
+        font-weight: bold;
+        font-size: $size;
+        line-height: $size * 3;
+        letter-spacing: .6em;
+    }
+}
+
+.medium-editor-insert-hr-active {
+    outline: 5px solid $main-color;
+}
