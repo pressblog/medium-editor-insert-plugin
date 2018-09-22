@@ -8687,8 +8687,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var _this = this;
 
 	            this._plugin.on(document, 'click', this.unselectImage.bind(this));
-	            this._plugin.on(document, 'keydown', this.removeImage.bind(this));
 	            this._plugin.on(document, 'keydown', this.moveToNextParagraph.bind(this));
+	            this._plugin.on(document, 'keydown', this.removeImage.bind(this));
+	            this._plugin.on(document, 'keydown', this.caretMoveToAndSelectImage.bind(this));
 
 	            this._plugin.getEditorElements().forEach(function (editor) {
 	                _this._plugin.on(editor, 'click', _this.selectImage.bind(_this));
@@ -8870,96 +8871,75 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }, {
 	        key: 'removeImage',
 	        value: function removeImage(e) {
-	            var _this7 = this;
+	            if ([_mediumEditor2.default.util.keyCode.BACKSPACE, _mediumEditor2.default.util.keyCode.DELETE].indexOf(e.which) === -1) return;
 
-	            if ([_mediumEditor2.default.util.keyCode.BACKSPACE, _mediumEditor2.default.util.keyCode.DELETE].indexOf(e.which) > -1) {
-	                var images = _utils2.default.getElementsByClassName(this._plugin.getEditorElements(), this.activeClassName),
-	                    selection = window.getSelection();
-	                var selectedHtml = void 0;
+	            var selection = window.getSelection();
+	            if (!selection || !selection.rangeCount) return;
 
-	                // Remove image even if it's not selected, but backspace/del is pressed in text
-	                if (selection && selection.rangeCount) {
-	                    var range = _mediumEditor2.default.selection.getSelectionRange(document),
-	                        focusedElement = _mediumEditor2.default.selection.getSelectedParentElement(range),
-	                        caretPosition = _mediumEditor2.default.selection.getCaretOffsets(focusedElement).left;
-	                    var sibling = void 0;
+	            var range = _mediumEditor2.default.selection.getSelectionRange(document),
+	                focusedElement = _mediumEditor2.default.selection.getSelectedParentElement(range);
 
-	                    // Is backspace pressed and caret is at the beginning of a paragraph, get previous element
-	                    if (e.which === _mediumEditor2.default.util.keyCode.BACKSPACE && caretPosition === 0) {
-	                        sibling = focusedElement.previousElementSibling;
-	                        // Is del pressed and caret is at the end of a paragraph, get next element
-	                    } else if (e.which === _mediumEditor2.default.util.keyCode.DELETE && caretPosition === focusedElement.innerText.length) {
-	                        sibling = focusedElement.nextElementSibling;
-	                    }
+	            if (focusedElement.classList.contains(this.activeClassName)) {
+	                var wrapper = _utils2.default.getClosestWithClassName(focusedElement, this.elementClassName);
 
-	                    if (sibling && sibling.classList.contains(this.elementClassName)) {
-	                        var newImages = sibling.getElementsByTagName('img');
-	                        Array.prototype.forEach.call(newImages, function (image) {
-	                            images.push(image);
-	                        });
-	                    }
+	                var newParagraph = document.createElement('p');
+	                e.target.replaceChild(newParagraph, wrapper);
 
-	                    // If text is selected, find images in the selection
-	                    selectedHtml = _mediumEditor2.default.selection.getSelectionHtml(document);
-	                    if (selectedHtml) {
-	                        var temp = document.createElement('div');
-	                        var wrappers = void 0,
-	                            _newImages = void 0;
-	                        temp.innerHTML = selectedHtml;
+	                this._editor.selectElement(newParagraph);
 
-	                        wrappers = temp.getElementsByClassName(this.elementClassName);
-	                        _newImages = _utils2.default.getElementsByTagName(wrappers, 'img');
+	                newParagraph.appendChild(document.createElement('br'));
 
-	                        Array.prototype.forEach.call(_newImages, function (image) {
-	                            images.push(image);
-	                        });
-	                    }
-	                }
-
-	                if (images.length) {
-	                    if (!selectedHtml) {
-	                        e.preventDefault();
-	                    }
-
-	                    images.forEach(function (image) {
-	                        var wrapper = _utils2.default.getClosestWithClassName(image, _this7.elementClassName);
-	                        _this7.deleteFile(image.src);
-
-	                        image.parentNode.remove();
-
-	                        // If wrapper has no images anymore, remove it
-	                        if (wrapper.childElementCount === 0) {
-	                            var next = wrapper.nextElementSibling,
-	                                prev = wrapper.previousElementSibling;
-
-	                            wrapper.remove();
-
-	                            // If there is no selection, move cursor at the beginning of next paragraph (if delete is pressed),
-	                            // or nove it at the end of previous paragraph (if backspace is pressed)
-	                            if (!selectedHtml) {
-	                                if (next || prev) {
-	                                    if (next && e.which === _mediumEditor2.default.util.keyCode.DELETE || !prev) {
-	                                        _mediumEditor2.default.selection.moveCursor(document, next, 0);
-	                                    } else {
-	                                        _mediumEditor2.default.selection.moveCursor(document, prev.lastChild, prev.lastChild.textContent.length);
-	                                    }
-	                                }
-	                            }
-	                        }
-	                    });
-	                }
+	                e.preventDefault();
 	            }
+	        }
+	    }, {
+	        key: 'caretMoveToAndSelectImage',
+	        value: function caretMoveToAndSelectImage(e) {
+	            var el = e.target;
+
+	            if ([_mediumEditor2.default.util.keyCode.BACKSPACE, _mediumEditor2.default.util.keyCode.DELETE].indexOf(e.which) === -1) return;
+
+	            if (_mediumEditor2.default.selection.getSelectionHtml(document)) return;
+
+	            var selection = window.getSelection();
+
+	            if (!selection || !selection.rangeCount) return;
+
+	            var range = _mediumEditor2.default.selection.getSelectionRange(document),
+	                focusedElement = _mediumEditor2.default.selection.getSelectedParentElement(range),
+	                caretPosition = _mediumEditor2.default.selection.getCaretOffsets(focusedElement).left;
+	            var sibling = void 0;
+
+	            // Is backspace pressed and caret is at the beginning of a paragraph, get previous element
+	            if (e.which === _mediumEditor2.default.util.keyCode.BACKSPACE && caretPosition === 0) {
+	                sibling = focusedElement.previousElementSibling;
+	                // Is del pressed and caret is at the end of a paragraph, get next element
+	            } else if (e.which === _mediumEditor2.default.util.keyCode.DELETE && caretPosition === focusedElement.innerText.length) {
+	                sibling = focusedElement.nextElementSibling;
+	            }
+
+	            if (!sibling || !sibling.classList.contains(this.elementClassName)) return;
+
+	            var image = sibling.querySelector('img');
+	            image.classList.add(this.activeClassName);
+	            this._editor.selectElement(image);
+
+	            if (focusedElement.textContent.length === 0) {
+	                focusedElement.remove();
+	            }
+
+	            e.preventDefault();
 	        }
 	    }, {
 	        key: 'moveToNextParagraph',
 	        value: function moveToNextParagraph(e) {
-	            var _this8 = this;
+	            var _this7 = this;
 
 	            if (e.which !== _mediumEditor2.default.util.keyCode.ENTER) return;
 
 	            var images = _utils2.default.getElementsByClassName(this._plugin.getEditorElements(), this.activeClassName);
 	            var activeImage = images.find(function (image) {
-	                return image.classList.contains(_this8.activeClassName);
+	                return image.classList.contains(_this7.activeClassName);
 	            });
 
 	            if (!activeImage) return;
@@ -8968,13 +8948,14 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            var wrapper = _utils2.default.getClosestWithClassName(activeImage, this.elementClassName);
 	            var newParagraph = document.createElement('p');
-	            newParagraph.appendChild(document.createElement('br'));
 	            wrapper.parentNode.insertBefore(newParagraph, wrapper.nextSibling);
 
 	            this._editor.selectElement(newParagraph);
 
+	            newParagraph.appendChild(document.createElement('br'));
+
 	            Array.prototype.forEach.call(images, function (image) {
-	                image.classList.remove(_this8.activeClassName);
+	                image.classList.remove(_this7.activeClassName);
 	            });
 	        }
 	    }, {

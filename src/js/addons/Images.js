@@ -47,8 +47,9 @@ export default class Images {
 
     events() {
         this._plugin.on(document, 'click', this.unselectImage.bind(this));
-        this._plugin.on(document, 'keydown', this.removeImage.bind(this));
         this._plugin.on(document, 'keydown', this.moveToNextParagraph.bind(this));
+        this._plugin.on(document, 'keydown', this.removeImage.bind(this));
+        this._plugin.on(document, 'keydown', this.caretMoveToAndSelectImage.bind(this));
 
         this._plugin.getEditorElements().forEach((editor) => {
             this._plugin.on(editor, 'click', this.selectImage.bind(this));
@@ -210,82 +211,63 @@ export default class Images {
     }
 
     removeImage(e) {
-        if ([MediumEditor.util.keyCode.BACKSPACE, MediumEditor.util.keyCode.DELETE].indexOf(e.which) > -1) {
-            const images = utils.getElementsByClassName(this._plugin.getEditorElements(), this.activeClassName),
-                selection = window.getSelection();
-            let selectedHtml;
+        if ([MediumEditor.util.keyCode.BACKSPACE, MediumEditor.util.keyCode.DELETE].indexOf(e.which) === -1) return;
 
-            // Remove image even if it's not selected, but backspace/del is pressed in text
-            if (selection && selection.rangeCount) {
-                const range = MediumEditor.selection.getSelectionRange(document),
-                    focusedElement = MediumEditor.selection.getSelectedParentElement(range),
-                    caretPosition = MediumEditor.selection.getCaretOffsets(focusedElement).left;
-                let sibling;
+        const selection = window.getSelection();
+        if (!selection || !selection.rangeCount) return;
 
-                // Is backspace pressed and caret is at the beginning of a paragraph, get previous element
-                if (e.which === MediumEditor.util.keyCode.BACKSPACE && caretPosition === 0) {
-                    sibling = focusedElement.previousElementSibling;
-                    // Is del pressed and caret is at the end of a paragraph, get next element
-                } else if (e.which === MediumEditor.util.keyCode.DELETE && caretPosition === focusedElement.innerText.length) {
-                    sibling = focusedElement.nextElementSibling;
-                }
+        const range = MediumEditor.selection.getSelectionRange(document),
+            focusedElement = MediumEditor.selection.getSelectedParentElement(range);
 
-                if (sibling && sibling.classList.contains(this.elementClassName)) {
-                    const newImages = sibling.getElementsByTagName('img');
-                    Array.prototype.forEach.call(newImages, (image) => {
-                        images.push(image);
-                    });
-                }
+        if (focusedElement.classList.contains(this.activeClassName)) {
+            const wrapper = utils.getClosestWithClassName(focusedElement, this.elementClassName)
 
-                // If text is selected, find images in the selection
-                selectedHtml = MediumEditor.selection.getSelectionHtml(document);
-                if (selectedHtml) {
-                    const temp = document.createElement('div');
-                    let wrappers, newImages;
-                    temp.innerHTML = selectedHtml;
+            const newParagraph = document.createElement('p');
+            e.target.replaceChild(newParagraph, wrapper);
 
-                    wrappers = temp.getElementsByClassName(this.elementClassName);
-                    newImages = utils.getElementsByTagName(wrappers, 'img');
+            this._editor.selectElement(newParagraph);
 
-                    Array.prototype.forEach.call(newImages, (image) => {
-                        images.push(image);
-                    });
-                }
-            }
+            newParagraph.appendChild(document.createElement('br'));
 
-            if (images.length) {
-                if (!selectedHtml) {
-                    e.preventDefault();
-                }
-
-                images.forEach((image) => {
-                    const wrapper = utils.getClosestWithClassName(image, this.elementClassName);
-                    this.deleteFile(image.src);
-
-                    image.parentNode.remove();
-
-                    // If wrapper has no images anymore, remove it
-                    if (wrapper.childElementCount === 0) {
-                        const next = wrapper.nextElementSibling,
-                            prev = wrapper.previousElementSibling;
-
-                        wrapper.remove();
-
-                        // If there is no selection, move cursor at the beginning of next paragraph (if delete is pressed),
-                        // or nove it at the end of previous paragraph (if backspace is pressed)
-                        if (!selectedHtml) {
-                            if (next || prev) {
-                                if ((next && e.which === MediumEditor.util.keyCode.DELETE) || !prev) {
-                                    MediumEditor.selection.moveCursor(document, next, 0);
-                                } else {
-                                    MediumEditor.selection.moveCursor(document, prev.lastChild, prev.lastChild.textContent.length);
-                                }
-                            }
-                        }
-                    }
-                });
-            }
+            e.preventDefault();
         }
+    }
+
+    caretMoveToAndSelectImage(e) {
+        const el = e.target;
+
+        if ([MediumEditor.util.keyCode.BACKSPACE, MediumEditor.util.keyCode.DELETE].indexOf(e.which) === -1) return;
+
+        if (MediumEditor.selection.getSelectionHtml(document)) return;
+
+        const selection = window.getSelection();
+
+        if (!selection || !selection.rangeCount) return;
+
+        const range = MediumEditor.selection.getSelectionRange(document),
+            focusedElement = MediumEditor.selection.getSelectedParentElement(range),
+            caretPosition = MediumEditor.selection.getCaretOffsets(focusedElement).left;
+        let sibling;
+
+        // Is backspace pressed and caret is at the beginning of a paragraph, get previous element
+        if (e.which === MediumEditor.util.keyCode.BACKSPACE && caretPosition === 0) {
+            sibling = focusedElement.previousElementSibling;
+            // Is del pressed and caret is at the end of a paragraph, get next element
+        } else if (e.which === MediumEditor.util.keyCode.DELETE && caretPosition === focusedElement.innerText.length) {
+            sibling = focusedElement.nextElementSibling;
+        }
+
+        if (!sibling || !sibling.classList.contains(this.elementClassName)) return;
+
+        const image = sibling.querySelector('img');
+        image.classList.add(this.activeClassName);
+        this._editor.selectElement(image);
+
+        if (focusedElement.textContent.length === 0) {
+            focusedElement.remove();
+        }
+
+        e.preventDefault();
     }
 
     moveToNextParagraph(e) {
@@ -300,10 +282,11 @@ export default class Images {
 
         const wrapper = utils.getClosestWithClassName(activeImage, this.elementClassName)
         const newParagraph = document.createElement('p');
-        newParagraph.appendChild(document.createElement('br'));
         wrapper.parentNode.insertBefore(newParagraph, wrapper.nextSibling);
 
         this._editor.selectElement(newParagraph);
+
+        newParagraph.appendChild(document.createElement('br'));
 
         Array.prototype.forEach.call(images, (image) => {
             image.classList.remove(this.activeClassName);
