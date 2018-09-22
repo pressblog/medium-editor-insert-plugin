@@ -68,13 +68,13 @@ export default class Core {
         this.buttons.classList.add('medium-editor-insert-buttons');
         this.buttons.setAttribute('contentediable', false);
 
-        html = `<a class="medium-editor-insert-buttons-show">+</a>
+        html = `<a class="medium-editor-insert-buttons-show" title="挿入">+</a>
             <ul class="medium-editor-insert-buttons-addons">`;
 
         Object.keys(addons).forEach((name) => {
             const addon = addons[name];
 
-            html += `<li><a class="medium-editor-insert-action" data-addon="${name}">${addon.label}</a></li>`;
+            html += `<li><a class="medium-editor-insert-action" data-addon="${name}" title="${addon.options.aria}">${addon.label}</a></li>`;
         });
 
         html += `</ul>`;

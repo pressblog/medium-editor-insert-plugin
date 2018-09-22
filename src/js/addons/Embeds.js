@@ -5,7 +5,8 @@ export default class Embeds {
         this._editor = this._plugin.base;
 
         this.options = {
-            label: '<span class="fa fa-youtube-play"></span>'
+            label: '<span class="fa fa-youtube-play"></span>',
+            aria: '外部サイトから埋め込む'
         };
 
         Object.assign(this.options, options);

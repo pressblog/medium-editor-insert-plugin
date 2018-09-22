@@ -8183,12 +8183,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this.buttons.classList.add('medium-editor-insert-buttons');
 	            this.buttons.setAttribute('contentediable', false);
 
-	            html = '<a class="medium-editor-insert-buttons-show">+</a>\n            <ul class="medium-editor-insert-buttons-addons">';
+	            html = '<a class="medium-editor-insert-buttons-show" title="\u633F\u5165">+</a>\n            <ul class="medium-editor-insert-buttons-addons">';
 
 	            Object.keys(addons).forEach(function (name) {
 	                var addon = addons[name];
 
-	                html += '<li><a class="medium-editor-insert-action" data-addon="' + name + '">' + addon.label + '</a></li>';
+	                html += '<li><a class="medium-editor-insert-action" data-addon="' + name + '" title="' + addon.options.aria + '">' + addon.label + '</a></li>';
 	            });
 
 	            html += '</ul>';
@@ -8592,7 +8592,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this._editor = this._plugin.base;
 
 	        this.options = {
-	            label: '<span class="fa fa-youtube-play"></span>'
+	            label: '<span class="fa fa-youtube-play"></span>',
+	            aria: '外部サイトから埋め込む'
 	        };
 
 	        Object.assign(this.options, options);
@@ -8647,6 +8648,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        this.options = {
 	            label: '<span class="fa fa-camera"></span>',
+	            aria: '画像アップロード',
 	            preview: true,
 	            uploadUrl: 'upload.php',
 	            deleteUrl: 'delete.php',

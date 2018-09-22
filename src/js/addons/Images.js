@@ -7,6 +7,7 @@ export default class Images {
     constructor(plugin, options) {
         this.options = {
             label: '<span class="fa fa-camera"></span>',
+            aria: '画像アップロード',
             preview: true,
             uploadUrl: 'upload.php',
             deleteUrl: 'delete.php',
