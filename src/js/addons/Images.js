@@ -224,7 +224,7 @@ export default class Images {
             const wrapper = utils.getClosestWithClassName(focusedElement, this.elementClassName)
 
             const newParagraph = document.createElement('p');
-            e.target.replaceChild(newParagraph, wrapper);
+            wrapper.parentNode.replaceChild(newParagraph, wrapper);
 
             this._editor.selectElement(newParagraph);
 

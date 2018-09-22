@@ -8885,7 +8885,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                var wrapper = _utils2.default.getClosestWithClassName(focusedElement, this.elementClassName);
 
 	                var newParagraph = document.createElement('p');
-	                e.target.replaceChild(newParagraph, wrapper);
+	                wrapper.parentNode.replaceChild(newParagraph, wrapper);
 
 	                this._editor.selectElement(newParagraph);
 
