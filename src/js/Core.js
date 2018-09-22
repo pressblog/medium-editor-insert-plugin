@@ -111,7 +111,13 @@ export default class Core {
 
         // If left position is lower than 0, the buttons would be out of the viewport.
         // In that case, align buttons with the editor
-        position.left = position.left < 0 ? elPosition.left : position.left;
+        position.left = position.left < 0 ? elPosition.left + 8 : position.left;
+
+        if (navigator.userAgent.match(/(iPhone|iPad|iPod|Android)/)) {
+            position.top -= 5;
+            const plusButton = this.buttons.getElementsByClassName('medium-editor-insert-buttons-show')[0];
+            plusButton.style.lineHeight = plusButton.clientHeight + 'px';
+        }
 
         this.buttons.style.left = `${position.left}px`;
         this.buttons.style.top = `${position.top}px`;
