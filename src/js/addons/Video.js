@@ -31,7 +31,7 @@ export default class Video {
         this._plugin.on(document, 'click', this.hideCaption.bind(this));
         this._plugin.on(document, 'keydown', this.moveToNextParagraph.bind(this));
         this._plugin.on(document, 'keydown', this.removeVideo.bind(this));
-        this._plugin.on(document, 'keydown', this.caretMoveToAndSelectImage.bind(this));
+        this._plugin.on(document, 'keydown', this.caretMoveToAndSelectVideo.bind(this));
 
         this._plugin.getEditorElements().forEach(editor => {
             this._plugin.on(editor, 'click', this.selectVideo.bind(this));
@@ -191,66 +191,12 @@ export default class Video {
         xhr.send(data);
     }
 
-    // TODO: Imageと同じ
     moveToNextParagraph(e) {
-        if (e.which !== MediumEditor.util.keyCode.ENTER) return;
-
-        const videos = utils.getElementsByClassName(this._plugin.getEditorElements(), this.activeClassName);
-        const activeVideo = videos.find(video => { return video.classList.contains(this.activeClassName); });
-
-        if (!activeVideo) return;
-
-        e.preventDefault();
-
-        const root = utils.getClosestWithClassName(activeVideo, this.elementClassName);
-        const newParagraph = document.createElement('p');
-        root.parentNode.insertBefore(newParagraph, root.nextElementSibling);
-
-        this._editor.selectElement(newParagraph);
-
-        newParagraph.appendChild(document.createElement('br'));
-
-        Array.prototype.forEach.call(videos, video => {
-            video.classList.remove(this.activeClassName);
-        });
+        this._plugin.getCore().moveToNewUnderParagraph(e, this.elementClassName, this.activeClassName);
     }
 
-    // TODO: sibling.querySelectorのところがImageと違うだけ
-    caretMoveToAndSelectImage(e) {
-        const el = e.target;
-
-        if ([MediumEditor.util.keyCode.BACKSPACE, MediumEditor.util.keyCode.DELETE].indexOf(e.which) === -1) return;
-
-        if (MediumEditor.selection.getSelectionHtml(document)) return;
-
-        const selection = window.getSelection();
-
-        if (!selection || !selection.rangeCount) return;
-
-        const range = MediumEditor.selection.getSelectionRange(document),
-            focusedElement = MediumEditor.selection.getSelectedParentElement(range),
-            caretPosition = MediumEditor.selection.getCaretOffsets(focusedElement).left;
-        let sibling;
-
-        // Is backspace pressed and caret is at the beginning of a paragraph, get previous element
-        if (e.which === MediumEditor.util.keyCode.BACKSPACE && caretPosition === 0) {
-            sibling = focusedElement.previousElementSibling;
-            // Is del pressed and caret is at the end of a paragraph, get next element
-        } else if (e.which === MediumEditor.util.keyCode.DELETE && caretPosition === focusedElement.innerText.length) {
-            sibling = focusedElement.nextElementSibling;
-        }
-
-        if (!sibling || !sibling.classList.contains(this.elementClassName)) return;
-
-        const video = sibling.querySelector('.' + this.overlayClassName);
-        video.classList.add(this.activeClassName);
-        this._editor.selectElement(video);
-
-        if (focusedElement.textContent.length === 0) {
-            focusedElement.remove();
-        }
-
-        e.preventDefault();
+    caretMoveToAndSelectVideo(e) {
+        this._plugin.getCore().caretMoveToAndSelect(e, this.elementClassName, this.activeClassName, '.' + this.overlayClassName);
     }
 
 }

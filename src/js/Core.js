@@ -223,4 +223,68 @@ export default class Core {
         el.parentNode.replaceChild(newParagraph, el);
     }
 
+    caretMoveToAndSelect(e, elementClassName, activeClassName, targetSelector) {
+        const el = e.target;
+
+        if ([MediumEditor.util.keyCode.BACKSPACE, MediumEditor.util.keyCode.DELETE].indexOf(e.which) === -1
+            || MediumEditor.selection.getSelectionHtml(document)
+        ) {
+            return;
+        }
+
+        const selection = window.getSelection();
+        if (!selection || !selection.rangeCount) {
+            return;
+        }
+
+        const range = MediumEditor.selection.getSelectionRange(document),
+            focusedElement = MediumEditor.selection.getSelectedParentElement(range),
+            caretPosition = MediumEditor.selection.getCaretOffsets(focusedElement).left;
+        let sibling;
+
+        // Is backspace pressed and caret is at the beginning of a paragraph, get previous element
+        if (e.which === MediumEditor.util.keyCode.BACKSPACE && caretPosition === 0) {
+            sibling = focusedElement.previousElementSibling;
+            // Is del pressed and caret is at the end of a paragraph, get next element
+        } else if (e.which === MediumEditor.util.keyCode.DELETE && caretPosition === focusedElement.innerText.length) {
+            sibling = focusedElement.nextElementSibling;
+        }
+
+        if (!sibling || !sibling.classList.contains(elementClassName)) {
+            return;
+        }
+
+        const target = sibling.querySelector(targetSelector);
+        target.classList.add(activeClassName);
+        this._editor.selectElement(target);
+
+        if (focusedElement.textContent.length === 0) {
+            focusedElement.remove();
+        }
+    }
+
+    moveToNewUnderParagraph(e, elementClassName, activeClassName) {
+        if (e.which !== MediumEditor.util.keyCode.ENTER) return;
+
+        const targets = utils.getElementsByClassName(this._plugin.getEditorElements(), activeClassName),
+            activeTarget = targets.find((_target) => { return _target.classList.contains(activeClassName); });
+
+        if (!activeTarget) return;
+
+        const wrapper = utils.getClosestWithClassName(activeTarget, elementClassName);
+        const newParagraph = document.createElement('p');
+        wrapper.parentNode.insertBefore(newParagraph, wrapper.nextElementSibling);
+
+        this._editor.selectElement(newParagraph);
+
+        newParagraph.appendChild(document.createElement('br'));
+
+        Array.prototype.forEach.call(targets, (_target) => {
+            _target.classList.remove(activeClassName);
+        });
+
+        // 作成した段落からlickイベントによりさらに段落を作成されるので止める
+        e.preventDefault();
+    }
+
 }
