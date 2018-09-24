@@ -6,6 +6,7 @@
         color: #ccc;
         margin-top: 8px;
         font-size: 0.7rem;
+        cursor: text;
 
         &:empty:before {
             content: '画像キャプション';

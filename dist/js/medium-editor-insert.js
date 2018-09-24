@@ -9163,6 +9163,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            label: '<span class="fa fa-video-camera"></span>',
 	            aria: '動画アップロード',
 	            preview: true,
+	            caption: true,
 	            uploadUrl: 'upload.php',
 	            maxBytes: 8 * 1000 * 1000 // 8MB
 	        };
@@ -9185,6 +9186,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var _this = this;
 
 	            this._plugin.on(document, 'click', this.unselectVideo.bind(this));
+	            this._plugin.on(document, 'click', this.hideCaption.bind(this));
 	            this._plugin.on(document, 'keydown', this.moveToNextParagraph.bind(this));
 	            this._plugin.on(document, 'keydown', this.removeVideo.bind(this));
 	            this._plugin.on(document, 'keydown', this.caretMoveToAndSelectImage.bind(this));
@@ -9211,6 +9213,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            if (el.classList.contains(this.overlayClassName) && _utils2.default.getClosestWithClassName(e.target, this.elementClassName)) {
 	                el.classList.add(this.activeClassName);
+
+	                if (this.options.caption) {
+	                    this.showCaption(el);
+	                }
 
 	                this._editor.selectElement(el);
 	            }
@@ -9242,6 +9248,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	                e.preventDefault();
 	            }
 	        }
+
+	        // TODO: Imageと合わせてリファクタ
+
 	    }, {
 	        key: 'unselectVideo',
 	        value: function unselectVideo(e) {
@@ -9259,6 +9268,42 @@ return /******/ (function(modules) { // webpackBootstrap
 	            Array.prototype.forEach.call(videos, function (video) {
 	                if (video !== selectedVideo) {
 	                    video.classList.remove(_this2.activeClassName);
+	                }
+	            });
+	        }
+
+	        // TODO: Imageと合わせてリファクタ
+
+	    }, {
+	        key: 'showCaption',
+	        value: function showCaption(video) {
+	            var wrapper = _utils2.default.getClosestWithClassName(video, this.elementClassName);
+	            var caption = wrapper.querySelector('figcaption');
+
+	            if (!caption) {
+	                caption = document.createElement('figcaption');
+	                caption.setAttribute('contenteditable', true);
+
+	                wrapper.insertBefore(caption, video.nextElementSibling);
+	            }
+	        }
+
+	        // TODO: Imageと合わせてリファクタ
+
+	    }, {
+	        key: 'hideCaption',
+	        value: function hideCaption(e) {
+	            var el = e.target,
+	                wrappers = _utils2.default.getElementsByClassName(this._plugin.getEditorElements(), this.elementClassName);
+	            var figcaption = void 0;
+
+	            Array.prototype.forEach.call(wrappers, function (wrapper) {
+	                if (!wrapper.contains(el)) {
+	                    figcaption = wrapper.querySelector('figcaption');
+
+	                    if (figcaption && figcaption.textContent.length === 0) {
+	                        figcaption.remove();
+	                    }
 	                }
 	            });
 	        }

@@ -9,6 +9,7 @@ export default class Video {
             label: '<span class="fa fa-video-camera"></span>',
             aria: '動画アップロード',
             preview: true,
+            caption: true,
             uploadUrl: 'upload.php',
             maxBytes: 8 * 1000 * 1000 // 8MB
         };
@@ -27,6 +28,7 @@ export default class Video {
 
     events() {
         this._plugin.on(document, 'click', this.unselectVideo.bind(this));
+        this._plugin.on(document, 'click', this.hideCaption.bind(this));
         this._plugin.on(document, 'keydown', this.moveToNextParagraph.bind(this));
         this._plugin.on(document, 'keydown', this.removeVideo.bind(this));
         this._plugin.on(document, 'keydown', this.caretMoveToAndSelectImage.bind(this));
@@ -51,6 +53,11 @@ export default class Video {
 
         if (el.classList.contains(this.overlayClassName) && utils.getClosestWithClassName(e.target, this.elementClassName)) {
             el.classList.add(this.activeClassName);
+
+            if (this.options.caption) {
+                this.showCaption(el);
+            }
+
 
             this._editor.selectElement(el);
         }
@@ -80,6 +87,7 @@ export default class Video {
         }
     }
 
+    // TODO: Imageと合わせてリファクタ
     unselectVideo(e) {
         const el = e.target;
         let selectedVideo, videos;
@@ -92,6 +100,36 @@ export default class Video {
         Array.prototype.forEach.call(videos, video => {
             if (video !== selectedVideo) {
                 video.classList.remove(this.activeClassName);
+            }
+        });
+    }
+
+    // TODO: Imageと合わせてリファクタ
+    showCaption(video) {
+        const wrapper = utils.getClosestWithClassName(video, this.elementClassName);
+        let caption = wrapper.querySelector('figcaption');
+
+        if (!caption) {
+            caption = document.createElement('figcaption');
+            caption.setAttribute('contenteditable', true);
+
+            wrapper.insertBefore(caption, video.nextElementSibling);
+        }
+    }
+
+    // TODO: Imageと合わせてリファクタ
+    hideCaption(e) {
+        const el = e.target,
+            wrappers = utils.getElementsByClassName(this._plugin.getEditorElements(), this.elementClassName);
+        let figcaption;
+
+        Array.prototype.forEach.call(wrappers, wrapper => {
+            if (!wrapper.contains(el)) {
+                figcaption = wrapper.querySelector('figcaption');
+
+                if (figcaption && figcaption.textContent.length === 0) {
+                    figcaption.remove();
+                }
             }
         });
     }

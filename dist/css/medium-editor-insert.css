@@ -86,7 +86,8 @@
     text-align: center;
     color: #ccc;
     margin-top: 8px;
-    font-size: 0.7rem; }
+    font-size: 0.7rem;
+    cursor: text; }
     .medium-editor-insert-images figcaption:empty:before {
       content: '画像キャプション'; }
 
@@ -107,6 +108,15 @@
   right: 0;
   bottom: 0;
   left: 0; }
+
+.medium-editor-insert-video figcaption {
+  text-align: center;
+  color: #ccc;
+  margin-top: 8px;
+  font-size: 0.7rem;
+  cursor: text; }
+  .medium-editor-insert-video figcaption:empty:before {
+    content: '動画キャプション'; }
 
 .medium-editor-insert-video-active {
   outline: 5px solid #15A2DE; }

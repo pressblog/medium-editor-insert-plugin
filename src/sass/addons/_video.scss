@@ -15,6 +15,18 @@
         bottom: 0;
         left: 0;
     }
+
+    figcaption {
+        text-align: center;
+        color: #ccc;
+        margin-top: 8px;
+        font-size: 0.7rem;
+        cursor: text;
+
+        &:empty:before {
+            content: '動画キャプション';
+        }
+    }
 }
 
 .medium-editor-insert-video-active {
