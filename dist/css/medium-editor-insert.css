@@ -92,7 +92,7 @@
       content: '画像キャプション'; }
 
 .medium-editor-insert-image-active {
-  outline: 5px solid #15A2DE; }
+  border: 5px solid #15A2DE; }
 
 .medium-editor-insert-video video {
   max-width: 100%; }
@@ -119,7 +119,7 @@
     content: '動画キャプション'; }
 
 .medium-editor-insert-video-active {
-  outline: 5px solid #15A2DE; }
+  border: 5px solid #15A2DE; }
 
 .medium-editor-insert-hr {
   margin-top: 52px;

@@ -212,4 +212,15 @@ export default class Core {
         this._plugin.getAddon(name).handleClick(e);
     }
 
+    deleteElement(el) {
+        if (!el) {
+            return;
+        }
+
+        const newParagraph = document.createElement('p');
+        newParagraph.appendChild(document.createElement('br'));
+
+        el.parentNode.replaceChild(newParagraph, el);
+    }
+
 }

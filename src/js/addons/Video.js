@@ -74,18 +74,11 @@ export default class Video {
             focusedElement = MediumEditor.selection.getSelectedParentElement(range);
 
         if (focusedElement.classList.contains(this.activeClassName)
-            || focusedElement.getElementsByClassName(this.activeClassName) // for safari
+            || focusedElement.querySelector('.' + this.activeClassName) // for safari
         ) {
-            const wrapper = utils.getClosestWithClassName(focusedElement, this.elementClassName)
+            const wrapper = focusedElement.closest('.' + this.elementClassName);
 
-            const newParagraph = document.createElement('p');
-            wrapper.parentNode.replaceChild(newParagraph, wrapper);
-
-            this._editor.selectElement(newParagraph);
-
-            newParagraph.appendChild(document.createElement('br'));
-
-            e.preventDefault();
+            this._plugin.getCore().deleteElement(wrapper);
         }
     }
 

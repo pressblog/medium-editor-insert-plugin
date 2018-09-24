@@ -8543,6 +8543,18 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            this._plugin.getAddon(name).handleClick(e);
 	        }
+	    }, {
+	        key: 'deleteElement',
+	        value: function deleteElement(el) {
+	            if (!el) {
+	                return;
+	            }
+
+	            var newParagraph = document.createElement('p');
+	            newParagraph.appendChild(document.createElement('br'));
+
+	            el.parentNode.replaceChild(newParagraph, el);
+	        }
 	    }]);
 
 	    return Core;
@@ -9027,18 +9039,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var range = _mediumEditor2.default.selection.getSelectionRange(document),
 	                focusedElement = _mediumEditor2.default.selection.getSelectedParentElement(range);
 
-	            if (focusedElement.classList.contains(this.activeClassName) || focusedElement.getElementsByClassName(this.activeClassName) // for safari
+	            if (focusedElement.classList.contains(this.activeClassName) || focusedElement.querySelector('.' + this.activeClassName) // for safari
 	            ) {
-	                    var wrapper = _utils2.default.getClosestWithClassName(focusedElement, this.elementClassName);
+	                    var wrapper = focusedElement.closest('.' + this.elementClassName);
 
-	                    var newParagraph = document.createElement('p');
-	                    wrapper.parentNode.replaceChild(newParagraph, wrapper);
-
-	                    this._editor.selectElement(newParagraph);
-
-	                    newParagraph.appendChild(document.createElement('br'));
-
-	                    e.preventDefault();
+	                    this._plugin.getCore().deleteElement(wrapper);
 	                }
 	        }
 	    }, {
@@ -9236,18 +9241,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var range = _mediumEditor2.default.selection.getSelectionRange(document),
 	                focusedElement = _mediumEditor2.default.selection.getSelectedParentElement(range);
 
-	            if (focusedElement.classList.contains(this.activeClassName) || focusedElement.getElementsByClassName(this.activeClassName) // for safari
+	            if (focusedElement.classList.contains(this.activeClassName) || focusedElement.querySelector('.' + this.activeClassName) // for safari
 	            ) {
-	                    var wrapper = _utils2.default.getClosestWithClassName(focusedElement, this.elementClassName);
+	                    var wrapper = focusedElement.closest('.' + this.elementClassName);
 
-	                    var newParagraph = document.createElement('p');
-	                    wrapper.parentNode.replaceChild(newParagraph, wrapper);
-
-	                    this._editor.selectElement(newParagraph);
-
-	                    newParagraph.appendChild(document.createElement('br'));
-
-	                    e.preventDefault();
+	                    this._plugin.getCore().deleteElement(wrapper);
 	                }
 	        }
 
