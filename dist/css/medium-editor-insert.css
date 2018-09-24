@@ -80,6 +80,16 @@
 .medium-editor-insert-buttons-active {
   display: block; }
 
+.medium-editor-insert-images {
+  font-size: 0; }
+  .medium-editor-insert-images figcaption {
+    text-align: center;
+    color: #ccc;
+    margin-top: 8px;
+    font-size: 0.7rem; }
+    .medium-editor-insert-images figcaption:empty:before {
+      content: '画像キャプション'; }
+
 .medium-editor-insert-image-active {
   outline: 5px solid #15A2DE; }
 

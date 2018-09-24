@@ -9,6 +9,7 @@ export default class Images {
             label: '<span class="fa fa-camera"></span>',
             aria: '画像アップロード',
             preview: true,
+            caption: true,
             uploadUrl: 'upload.php',
             deleteUrl: 'delete.php',
             deleteMethod: 'DELETE',
@@ -48,6 +49,7 @@ export default class Images {
 
     events() {
         this._plugin.on(document, 'click', this.unselectImage.bind(this));
+        this._plugin.on(document, 'click', this.hideCaption.bind(this));
         this._plugin.on(document, 'keydown', this.moveToNextParagraph.bind(this));
         this._plugin.on(document, 'keydown', this.removeImage.bind(this));
         this._plugin.on(document, 'keydown', this.caretMoveToAndSelectImage.bind(this));
@@ -191,6 +193,10 @@ export default class Images {
         if (el.nodeName.toLowerCase() === 'img' && utils.getClosestWithClassName(el, this.elementClassName)) {
             el.classList.add(this.activeClassName);
 
+            if (this.options.caption) {
+                this.showCaption(el);
+            }
+
             this._editor.selectElement(el);
         }
     }
@@ -208,6 +214,34 @@ export default class Images {
         Array.prototype.forEach.call(images, (image) => {
             if (image !== clickedImage) {
                 image.classList.remove(this.activeClassName);
+            }
+        });
+    }
+
+    showCaption(image) {
+        const wrapper = utils.getClosestWithClassName(image, this.elementClassName);
+        let caption = wrapper.querySelector('figcaption');
+
+        if (!caption) {
+            caption = document.createElement('figcaption');
+            caption.setAttribute('contenteditable', true);
+
+            wrapper.insertBefore(caption, image.nextElementSibling);
+        }
+    }
+
+    hideCaption(e) {
+        const el = e.target,
+            wrappers = utils.getElementsByClassName(this._plugin.getEditorElements(), this.elementClassName);
+        let figcaption;
+
+        Array.prototype.forEach.call(wrappers, wrapper => {
+            if (!wrapper.contains(el)) {
+                figcaption = wrapper.querySelector('figcaption');
+
+                if (figcaption && figcaption.textContent.length === 0) {
+                    figcaption.remove();
+                }
             }
         });
     }

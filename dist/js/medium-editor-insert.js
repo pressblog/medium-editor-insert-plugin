@@ -8759,6 +8759,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            label: '<span class="fa fa-camera"></span>',
 	            aria: '画像アップロード',
 	            preview: true,
+	            caption: true,
 	            uploadUrl: 'upload.php',
 	            deleteUrl: 'delete.php',
 	            deleteMethod: 'DELETE',
@@ -8798,6 +8799,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var _this = this;
 
 	            this._plugin.on(document, 'click', this.unselectImage.bind(this));
+	            this._plugin.on(document, 'click', this.hideCaption.bind(this));
 	            this._plugin.on(document, 'keydown', this.moveToNextParagraph.bind(this));
 	            this._plugin.on(document, 'keydown', this.removeImage.bind(this));
 	            this._plugin.on(document, 'keydown', this.caretMoveToAndSelectImage.bind(this));
@@ -8956,6 +8958,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	            if (el.nodeName.toLowerCase() === 'img' && _utils2.default.getClosestWithClassName(el, this.elementClassName)) {
 	                el.classList.add(this.activeClassName);
 
+	                if (this.options.caption) {
+	                    this.showCaption(el);
+	                }
+
 	                this._editor.selectElement(el);
 	            }
 	        }
@@ -8977,6 +8983,36 @@ return /******/ (function(modules) { // webpackBootstrap
 	            Array.prototype.forEach.call(images, function (image) {
 	                if (image !== clickedImage) {
 	                    image.classList.remove(_this6.activeClassName);
+	                }
+	            });
+	        }
+	    }, {
+	        key: 'showCaption',
+	        value: function showCaption(image) {
+	            var wrapper = _utils2.default.getClosestWithClassName(image, this.elementClassName);
+	            var caption = wrapper.querySelector('figcaption');
+
+	            if (!caption) {
+	                caption = document.createElement('figcaption');
+	                caption.setAttribute('contenteditable', true);
+
+	                wrapper.insertBefore(caption, image.nextElementSibling);
+	            }
+	        }
+	    }, {
+	        key: 'hideCaption',
+	        value: function hideCaption(e) {
+	            var el = e.target,
+	                wrappers = _utils2.default.getElementsByClassName(this._plugin.getEditorElements(), this.elementClassName);
+	            var figcaption = void 0;
+
+	            Array.prototype.forEach.call(wrappers, function (wrapper) {
+	                if (!wrapper.contains(el)) {
+	                    figcaption = wrapper.querySelector('figcaption');
+
+	                    if (figcaption && figcaption.textContent.length === 0) {
+	                        figcaption.remove();
+	                    }
 	                }
 	            });
 	        }

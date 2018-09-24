@@ -1,3 +1,18 @@
+.medium-editor-insert-images {
+    font-size: 0;
+
+    figcaption {
+        text-align: center;
+        color: #ccc;
+        margin-top: 8px;
+        font-size: 0.7rem;
+
+        &:empty:before {
+            content: '画像キャプション';
+        }
+    }
+}
+
 .medium-editor-insert-image-active {
     outline: 5px solid $main-color;
 }
