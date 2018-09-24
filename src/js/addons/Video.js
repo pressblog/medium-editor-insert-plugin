@@ -99,34 +99,14 @@ export default class Video {
         });
     }
 
-    // TODO: Imageと合わせてリファクタ
-    showCaption(video) {
-        const wrapper = utils.getClosestWithClassName(video, this.elementClassName);
-        let caption = wrapper.querySelector('figcaption');
-
-        if (!caption) {
-            caption = document.createElement('figcaption');
-            caption.setAttribute('contenteditable', true);
-
-            wrapper.insertBefore(caption, video.nextElementSibling);
-        }
+    showCaption(el) {
+        this._plugin.getCore().showCaption(el, '.' + this.elementClassName);
     }
 
-    // TODO: Imageと合わせてリファクタ
     hideCaption(e) {
-        const el = e.target,
-            wrappers = utils.getElementsByClassName(this._plugin.getEditorElements(), this.elementClassName);
-        let figcaption;
+        const el = e.target;
 
-        Array.prototype.forEach.call(wrappers, wrapper => {
-            if (!wrapper.contains(el)) {
-                figcaption = wrapper.querySelector('figcaption');
-
-                if (figcaption && figcaption.textContent.length === 0) {
-                    figcaption.remove();
-                }
-            }
-        });
+        this._plugin.getCore().hideCaption(el, this.elementClassName);
     }
 
     uploadFile() {

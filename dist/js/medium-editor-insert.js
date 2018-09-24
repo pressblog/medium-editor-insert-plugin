@@ -8621,6 +8621,35 @@ return /******/ (function(modules) { // webpackBootstrap
 	            // 作成した段落からlickイベントによりさらに段落を作成されるので止める
 	            e.preventDefault();
 	        }
+	    }, {
+	        key: 'showCaption',
+	        value: function showCaption(el, selector) {
+	            var wrapper = el.closest(selector);
+	            var caption = wrapper.querySelector('figcaption');
+
+	            if (!caption) {
+	                caption = document.createElement('figcaption');
+	                caption.setAttribute('contenteditable', true);
+
+	                wrapper.insertBefore(caption, el.nextElementSibling);
+	            }
+	        }
+	    }, {
+	        key: 'hideCaption',
+	        value: function hideCaption(el, elementClassName) {
+	            var wrappers = _utils2.default.getElementsByClassName(this._plugin.getEditorElements(), elementClassName);
+	            var figcaption = void 0;
+
+	            Array.prototype.forEach.call(wrappers, function (wrapper) {
+	                if (!wrapper.contains(el)) {
+	                    figcaption = wrapper.querySelector('figcaption');
+
+	                    if (figcaption && figcaption.textContent.length === 0) {
+	                        figcaption.remove();
+	                    }
+	                }
+	            });
+	        }
 	    }]);
 
 	    return Core;
@@ -9066,33 +9095,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	    }, {
 	        key: 'showCaption',
-	        value: function showCaption(image) {
-	            var wrapper = _utils2.default.getClosestWithClassName(image, this.elementClassName);
-	            var caption = wrapper.querySelector('figcaption');
-
-	            if (!caption) {
-	                caption = document.createElement('figcaption');
-	                caption.setAttribute('contenteditable', true);
-
-	                wrapper.insertBefore(caption, image.nextElementSibling);
-	            }
+	        value: function showCaption(el) {
+	            this._plugin.getCore().showCaption(el, '.' + this.elementClassName);
 	        }
 	    }, {
 	        key: 'hideCaption',
 	        value: function hideCaption(e) {
-	            var el = e.target,
-	                wrappers = _utils2.default.getElementsByClassName(this._plugin.getEditorElements(), this.elementClassName);
-	            var figcaption = void 0;
+	            var el = e.target;
 
-	            Array.prototype.forEach.call(wrappers, function (wrapper) {
-	                if (!wrapper.contains(el)) {
-	                    figcaption = wrapper.querySelector('figcaption');
-
-	                    if (figcaption && figcaption.textContent.length === 0) {
-	                        figcaption.remove();
-	                    }
-	                }
-	            });
+	            this._plugin.getCore().hideCaption(el, this.elementClassName);
 	        }
 	    }, {
 	        key: 'removeImage',
@@ -9281,41 +9292,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	                }
 	            });
 	        }
-
-	        // TODO: Imageと合わせてリファクタ
-
 	    }, {
 	        key: 'showCaption',
-	        value: function showCaption(video) {
-	            var wrapper = _utils2.default.getClosestWithClassName(video, this.elementClassName);
-	            var caption = wrapper.querySelector('figcaption');
-
-	            if (!caption) {
-	                caption = document.createElement('figcaption');
-	                caption.setAttribute('contenteditable', true);
-
-	                wrapper.insertBefore(caption, video.nextElementSibling);
-	            }
+	        value: function showCaption(el) {
+	            this._plugin.getCore().showCaption(el, '.' + this.elementClassName);
 	        }
-
-	        // TODO: Imageと合わせてリファクタ
-
 	    }, {
 	        key: 'hideCaption',
 	        value: function hideCaption(e) {
-	            var el = e.target,
-	                wrappers = _utils2.default.getElementsByClassName(this._plugin.getEditorElements(), this.elementClassName);
-	            var figcaption = void 0;
+	            var el = e.target;
 
-	            Array.prototype.forEach.call(wrappers, function (wrapper) {
-	                if (!wrapper.contains(el)) {
-	                    figcaption = wrapper.querySelector('figcaption');
-
-	                    if (figcaption && figcaption.textContent.length === 0) {
-	                        figcaption.remove();
-	                    }
-	                }
-	            });
+	            this._plugin.getCore().hideCaption(el, this.elementClassName);
 	        }
 	    }, {
 	        key: 'uploadFile',

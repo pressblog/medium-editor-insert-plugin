@@ -287,4 +287,31 @@ export default class Core {
         e.preventDefault();
     }
 
+    showCaption(el, selector) {
+        const wrapper = el.closest(selector);
+        let caption = wrapper.querySelector('figcaption');
+
+        if (!caption) {
+            caption = document.createElement('figcaption');
+            caption.setAttribute('contenteditable', true);
+
+            wrapper.insertBefore(caption, el.nextElementSibling);
+        }
+    }
+
+    hideCaption(el, elementClassName) {
+        const wrappers = utils.getElementsByClassName(this._plugin.getEditorElements(), elementClassName);
+        let figcaption;
+
+        Array.prototype.forEach.call(wrappers, wrapper => {
+            if (!wrapper.contains(el)) {
+                figcaption = wrapper.querySelector('figcaption');
+
+                if (figcaption && figcaption.textContent.length === 0) {
+                    figcaption.remove();
+                }
+            }
+        });
+    }
+
 }
