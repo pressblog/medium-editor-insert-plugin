@@ -255,7 +255,9 @@ export default class Images {
         const range = MediumEditor.selection.getSelectionRange(document),
             focusedElement = MediumEditor.selection.getSelectedParentElement(range);
 
-        if (focusedElement.classList.contains(this.activeClassName)) {
+        if (focusedElement.classList.contains(this.activeClassName)
+            || focusedElement.getElementsByClassName(this.activeClassName) // for safari
+        ) {
             const wrapper = utils.getClosestWithClassName(focusedElement, this.elementClassName)
 
             const newParagraph = document.createElement('p');
