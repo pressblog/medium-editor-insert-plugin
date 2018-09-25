@@ -35,6 +35,8 @@ export default class Horizon {
         hr.classList.add(this.elementClassName);
 
         selectedElement.parentNode.replaceChild(hr, selectedElement);
+
+        this._plugin.getCore().hideButtons();
     }
 
     returnNewParagraph(e) {

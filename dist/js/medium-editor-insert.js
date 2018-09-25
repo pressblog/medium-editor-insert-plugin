@@ -8891,6 +8891,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	            hr.classList.add(this.elementClassName);
 
 	            selectedElement.parentNode.replaceChild(hr, selectedElement);
+
+	            this._plugin.getCore().hideButtons();
 	        }
 	    }, {
 	        key: 'returnNewParagraph',
