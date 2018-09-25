@@ -8892,6 +8892,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            selectedElement.parentNode.replaceChild(hr, selectedElement);
 
+	            this.createNewParagraph(hr);
+
 	            this._plugin.getCore().hideButtons();
 	        }
 	    }, {
@@ -8900,14 +8902,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var el = e.target;
 
 	            if (el.classList.contains(this.elementClassName)) {
-	                var newParagraph = document.createElement('p');
-
-	                el.parentNode.insertBefore(newParagraph, el.nextElementSibling);
-
-	                this._editor.selectElement(newParagraph);
-
-	                newParagraph.appendChild(document.createElement('br'));
+	                this.createNewParagraph(el);
 	            }
+	        }
+	    }, {
+	        key: 'createNewParagraph',
+	        value: function createNewParagraph(el) {
+	            var newParagraph = document.createElement('p');
+
+	            el.parentNode.insertBefore(newParagraph, el.nextElementSibling);
+
+	            this._editor.selectElement(newParagraph);
+
+	            newParagraph.appendChild(document.createElement('br'));
 	        }
 	    }]);
 
