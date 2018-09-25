@@ -1193,19 +1193,90 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return false;
 	        },
 
-	        cleanListDOM: function (ownerDocument, element) {
-	            if (element.nodeName.toLowerCase() !== 'li') {
-	                return;
+	        findFirstTextNodeInSelection: function (selection) {
+	            if (selection.anchorNode.nodeType === 3) {
+	                return selection.anchorNode;
 	            }
 
-	            var list = element.parentElement;
+	            var node = selection.anchorNode.firstChild;
 
-	            if (list.parentElement.nodeName.toLowerCase() === 'p') { // yes we need to clean up
-	                Util.unwrap(list.parentElement, ownerDocument);
+	            while (node) {
+	                if (selection.containsNode(node, true)) {
+	                    if (node.nodeType === 3) {
+	                        return node;
+	                    } else {
+	                        node = node.firstChild;
+	                    }
+	                } else {
+	                    node = node.nextSibling;
+	                }
+	            }
 
-	                // move cursor at the end of the text inside the list
-	                // for some unknown reason, the cursor is moved to end of the "visual" line
-	                MediumEditor.selection.moveCursor(ownerDocument, element.firstChild, element.firstChild.textContent.length);
+	            return null;
+	        },
+
+	        cleanListDOM: function (ownerDocument, element) {
+	            if (element.nodeName.toLowerCase() !== 'li') {
+	                if (this.isIE || this.isEdge) {
+	                    return;
+	                }
+
+	                var selection = ownerDocument.getSelection(),
+	                    newRange = ownerDocument.createRange(),
+	                    oldRange = selection.getRangeAt(0),
+	                    startContainer = oldRange.startContainer,
+	                    startOffset = oldRange.startOffset,
+	                    endContainer = oldRange.endContainer,
+	                    endOffset = oldRange.endOffset,
+	                    node, newNode, nextNode, moveEndOffset;
+
+	                if (element.nodeName.toLowerCase() === 'span') {
+	                    // Chrome & Safari unwraps removed li elements into a span
+	                    node = element;
+	                    moveEndOffset = false;
+	                } else {
+	                    // FF leaves them as text nodes
+	                    node = this.findFirstTextNodeInSelection(selection);
+	                    moveEndOffset = startContainer.nodeType !== 3;
+	                }
+
+	                while (node) {
+	                    if (node.nodeName.toLowerCase() !== 'span' && node.nodeType !== 3) {
+	                        break;
+	                    }
+
+	                    if (node.nextSibling && node.nextSibling.nodeName.toLowerCase() === 'br') {
+	                        node.nextSibling.remove();
+
+	                        if (moveEndOffset) {
+	                            endOffset--;
+	                        }
+	                    }
+
+	                    nextNode = node.nextSibling;
+
+	                    newNode = ownerDocument.createElement('p');
+	                    node.parentNode.replaceChild(newNode, node);
+	                    newNode.appendChild(node);
+
+	                    node = nextNode;
+	                }
+
+	                // Restore selection
+	                newRange.setStart(startContainer, startOffset);
+	                newRange.setEnd(endContainer, endOffset);
+	                selection.removeAllRanges();
+	                selection.addRange(newRange);
+	            } else {
+	                var list = element.parentElement;
+
+	                if (list.parentElement.nodeName.toLowerCase() === 'p') { // yes we need to clean up
+	                    Util.unwrap(list.parentElement, ownerDocument);
+
+	                    // move cursor at the end of the text inside the list
+	                    // for some unknown reason, the cursor is moved to end of the "visual" line
+	                    MediumEditor.selection.moveCursor(ownerDocument, element.firstChild, element.firstChild.textContent.length);
+	                }
 	            }
 	        },
 
@@ -3902,8 +3973,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	                // and provide similar access to a `fa-` icon default.
 	                template.push(
 	                    '<div class="medium-editor-toolbar-form-row">',
-	                    '<input type="checkbox" class="medium-editor-toolbar-anchor-button">',
-	                    '<label>',
+	                    '<input type="checkbox" class="medium-editor-toolbar-anchor-button" id="medium-editor-toolbar-anchor-button-field-' + this.getEditorId() + '">',
+	                    '<label for="medium-editor-toolbar-anchor-button-field-' + this.getEditorId() + '">',
 	                    this.customClassOptionText,
 	                    '</label>',
 	                    '</div>'
@@ -6162,6 +6233,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	            // Handle mouseup on document for updating the selection in the toolbar
 	            this.on(this.document.documentElement, 'mouseup', this.handleDocumentMouseup.bind(this));
 
+	            if (this.isMobile) {
+	                this.document.addEventListener('selectionchange', this.handleSelectionChange.bind(this));
+	            }
+
 	            // Add a scroll event for sticky toolbar
 	            if (this.static && this.sticky) {
 	                // On scroll (capture), re-position the toolbar
@@ -6187,6 +6262,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    MediumEditor.util.isDescendant(this.getToolbarElement(), event.target)) {
 	                return false;
 	            }
+	            this.checkState();
+	        },
+
+	        handleSelectionChange: function () {
 	            this.checkState();
 	        },
 
@@ -6553,7 +6632,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                toolbarHeight = toolbarElement.offsetHeight,
 	                toolbarWidth = toolbarElement.offsetWidth,
 	                halfOffsetWidth = toolbarWidth / 2,
-	                buttonHeight = 50,
+	                buttonHeight = toolbarElement.clientHeight,
 	                defaultLeft = this.diffLeft - halfOffsetWidth,
 	                elementsContainer = this.getEditorOption('elementsContainer'),
 	                elementsContainerAbsolute = ['absolute', 'fixed'].indexOf(window.getComputedStyle(elementsContainer).getPropertyValue('position')) > -1,
@@ -6584,14 +6663,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	            middleBoundary = boundary.left + boundary.width / 2;
 	            positions.top += boundary.top - toolbarHeight;
 
-	            if (boundary.top < buttonHeight) {
+	            if (this.isMobile) {
 	                toolbarElement.classList.add('medium-toolbar-arrow-over');
 	                toolbarElement.classList.remove('medium-toolbar-arrow-under');
-	                positions.top += buttonHeight + boundary.height - this.diffTop;
+	                positions.top += buttonHeight + boundary.height + 10;
 	            } else {
-	                toolbarElement.classList.add('medium-toolbar-arrow-under');
-	                toolbarElement.classList.remove('medium-toolbar-arrow-over');
-	                positions.top += this.diffTop;
+	                if (boundary.top < buttonHeight) {
+	                    toolbarElement.classList.add('medium-toolbar-arrow-over');
+	                    toolbarElement.classList.remove('medium-toolbar-arrow-under');
+	                    positions.top += buttonHeight + boundary.height - this.diffTop;
+	                } else {
+	                    toolbarElement.classList.add('medium-toolbar-arrow-under');
+	                    toolbarElement.classList.remove('medium-toolbar-arrow-over');
+	                    positions.top += this.diffTop;
+	                }
 	            }
 
 	            if (middleBoundary < halfOffsetWidth) {

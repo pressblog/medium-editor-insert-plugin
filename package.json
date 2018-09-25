@@ -13,7 +13,7 @@
   },
   "license": "MIT",
   "scripts": {
-    "build": "npm run clean && npm run build:dev && npm run build:prod",
+    "build": "npm run copy && npm run clean && npm run build:dev && npm run build:prod",
     "build:dev": "npm run css:dev && webpack src/js/Plugin.js dist/js/medium-editor-insert.js --config ./webpack.config.dev.js --progress --colors",
     "build:prod": "npm run css:prod && webpack src/js/Plugin.js dist/js/medium-editor-insert.min.js --config ./webpack.config.prod.js --progress --colors",
     "prepublish": "npm run build",
@@ -25,7 +25,8 @@
     "css": "npm run css:dev && npm run css:prod",
     "watch:js": "webpack src/js/Plugin.js dist/js/medium-editor-insert.js --config ./webpack.config.dev.js --progress --colors --watch",
     "watch:css": "node-sass --watch src/sass/medium-editor-insert.scss dist/css/medium-editor-insert.css",
-    "watch": "npm run watch:js & npm run watch:css"
+    "watch": "npm run watch:js & npm run watch:css",
+    "copy": "cp node_modules/medium-editor/dist/css/themes/default.css examples/css/themes/ && cp node_modules/medium-editor/dist/css/medium-editor.min.css examples/css/ && cp node_modules/medium-editor/dist/js/medium-editor.min.js examples/js/"
   },
   "keywords": [
     "contenteditable",
@@ -38,7 +39,7 @@
     "embed"
   ],
   "peerDependencies": {
-    "medium-editor": "^5.14.4"
+    "medium-editor": "https://github.com/pressblog/medium-editor.git#master"
   },
   "devDependencies": {
     "babel-core": "^6.4.0",
@@ -59,7 +60,6 @@
     "karma-sourcemap-loader": "^0.3.7",
     "karma-webpack": "^3.0.5",
     "loader-utils": "^0.2.12",
-    "medium-editor": "^5.14.4",
     "node-sass": "^3.4.2",
     "rimraf": "^2.5.0",
     "webpack": "^1.12.11"

@@ -2831,9 +2831,9 @@ media-typer@0.3.0:
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/media-typer/-/media-typer-0.3.0.tgz#8710d7af0aa626f8fffa1ce00168545263255748"
 
-medium-editor@^5.14.4:
+"medium-editor@https://github.com/pressblog/medium-editor.git#master":
   version "5.23.3"
-  resolved "https://registry.yarnpkg.com/medium-editor/-/medium-editor-5.23.3.tgz#6fb638759ae2fc76c423feb056f346d9c518d3b7"
+  resolved "https://github.com/pressblog/medium-editor.git#3076fd9a13119a916e2f5c7738babc1a0ccd4195"
 
 memory-fs@^0.2.0:
   version "0.2.0"
