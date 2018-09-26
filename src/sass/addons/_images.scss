@@ -1,5 +1,23 @@
-.medium-editor-insert-images {
+.medium-editor-insert-image {
     font-size: 0;
+
+    &-wrapper {
+        position: relative;
+        display: inline-block;
+        font-size: 0;
+    }
+
+    &-overlay {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+    }
+
+    &-active {
+        border: 5px solid $main-color;
+    }
 
     figcaption {
         text-align: center;
@@ -12,8 +30,4 @@
             content: '画像キャプション';
         }
     }
-}
-
-.medium-editor-insert-image-active {
-    border: 5px solid $main-color;
 }

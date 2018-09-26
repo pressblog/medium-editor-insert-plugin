@@ -8979,8 +8979,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        this._plugin = plugin;
 	        this._editor = this._plugin.base;
-	        this.elementClassName = 'medium-editor-insert-images';
-	        this.activeClassName = 'medium-editor-insert-image-active';
+	        this.elementClassName = 'medium-editor-insert-image';
+	        this.activeClassName = this.elementClassName + '-active';
+	        this.overlayClassName = this.elementClassName + '-overlay';
 	        this.label = this.options.label;
 
 	        this.initToolbar();
@@ -9090,13 +9091,19 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            var selectedElement = this._plugin.getCore().selectedElement,
 	                figure = document.createElement('figure'),
+	                wrapper = document.createElement('div'),
+	                overlay = document.createElement('div'),
 	                img = document.createElement('img');
 	            var domImage = void 0;
 
-	            figure.setAttribute('contenteditable', 'false');
-	            selectedElement.parentNode.insertBefore(figure, selectedElement);
+	            overlay.classList.add(this.overlayClassName);
+	            wrapper.classList.add(this.elementClassName + '-wrapper');
+	            wrapper.appendChild(overlay);
+	            figure.setAttribute('contenteditable', false);
 	            figure.classList.add(this.elementClassName);
-	            this._plugin.getCore().selectElement(figure);
+	            figure.appendChild(wrapper);
+
+	            selectedElement.parentNode.insertBefore(figure, selectedElement);
 
 	            img.alt = '';
 	            if (uid) {
@@ -9106,7 +9113,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            domImage = new Image();
 	            domImage.onload = function () {
 	                img.src = domImage.src;
-	                figure.appendChild(img);
+	                wrapper.insertBefore(img, overlay);
 
 	                if (url.match(/^data:/)) {
 	                    _this5.upload(file, uid);
@@ -9137,14 +9144,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	        value: function selectImage(e) {
 	            var el = e.target;
 
-	            if (el.nodeName.toLowerCase() === 'img' && _utils2.default.getClosestWithClassName(el, this.elementClassName)) {
-	                el.classList.add(this.activeClassName);
+	            if (el.classList.contains(this.overlayClassName)) {
+	                var overlay = el;
+	                overlay.classList.add(this.activeClassName);
 
 	                if (this.options.caption) {
-	                    this.showCaption(el);
+	                    this.showCaption(overlay);
 	                }
 
-	                this._editor.selectElement(el);
+	                this._editor.selectElement(overlay);
 	            }
 	        }
 	    }, {
@@ -9157,7 +9165,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                images = void 0;
 
 	            // Unselect all selected images. If an image is clicked, unselect all except this one.
-	            if (el.nodeName.toLowerCase() === 'img' && el.classList.contains(this.activeClassName)) {
+	            if (el.classList.contains(this.activeClassName)) {
 	                clickedImage = el;
 	            }
 
@@ -9206,7 +9214,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }, {
 	        key: 'caretMoveToAndSelectImage',
 	        value: function caretMoveToAndSelectImage(e) {
-	            this._plugin.getCore().caretMoveToAndSelect(e, this.elementClassName, this.activeClassName, 'img');
+	            this._plugin.getCore().caretMoveToAndSelect(e, this.elementClassName, this.activeClassName, '.' + this.overlayClassName);
 	        }
 	    }, {
 	        key: 'deleteFile',
@@ -9388,31 +9396,38 @@ return /******/ (function(modules) { // webpackBootstrap
 	                alert('ファイルサイズが大きすぎてアップロードできません m(_ _)m');
 	            }
 
-	            this.insert(file);
+	            this.insertVideo(file);
 
 	            this._plugin.getCore().hideButtons();
 	        }
 	    }, {
-	        key: 'insert',
-	        value: function insert(file) {
-	            var video = document.createElement('video'),
-	                source = document.createElement('source'),
+	        key: 'insertVideo',
+	        value: function insertVideo(file) {
+	            var selectedElement = this._plugin.getCore().selectedElement,
 	                figure = document.createElement('figure'),
-	                selectedElement = this._plugin.getCore().selectedElement;
+	                video = document.createElement('video'),
+	                wrapper = document.createElement('div'),
+	                overlay = document.createElement('div');
 
-	            figure.innerHTML = ['<div class="' + this.elementClassName + '-wrapper">', '<video controls muted="true"></video>', '<div class="' + this.overlayClassName + '"></div>', '</div>'].join('');
+	            overlay.classList.add(this.overlayClassName);
+	            video.setAttribute('controls', '');
+	            video.setAttribute('muted', true);
+	            wrapper.classList.add(this.elementClassName + '-wrapper');
+	            wrapper.appendChild(video);
+	            wrapper.appendChild(overlay);
 	            figure.setAttribute('contenteditable', false);
 	            figure.classList.add(this.elementClassName);
+	            figure.appendChild(wrapper);
 
 	            selectedElement.parentNode.insertBefore(figure, selectedElement);
 
 	            this.upload(file, figure);
 	        }
 	    }, {
-	        key: 'replace',
-	        value: function replace(url, root) {
+	        key: 'replaceVideo',
+	        value: function replaceVideo(url, wrapper) {
 	            var source = document.createElement('source'),
-	                video = root.querySelector('video');
+	                video = wrapper.querySelector('video');
 
 	            source.src = url;
 
@@ -9420,7 +9435,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	    }, {
 	        key: 'upload',
-	        value: function upload(file, root) {
+	        value: function upload(file, wrapper) {
 	            var _this3 = this;
 
 	            var xhr = new XMLHttpRequest(),
@@ -9429,7 +9444,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            xhr.open("POST", this.options.uploadUrl, true);
 	            xhr.onreadystatechange = function () {
 	                if (xhr.readyState === 4 && xhr.status === 200) {
-	                    _this3.replace(xhr.responseText, root);
+	                    _this3.replaceVideo(xhr.responseText, wrapper);
 	                }
 	            };
 

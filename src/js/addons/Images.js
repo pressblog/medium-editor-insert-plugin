@@ -39,8 +39,9 @@ export default class Images {
 
         this._plugin = plugin;
         this._editor = this._plugin.base;
-        this.elementClassName = 'medium-editor-insert-images';
-        this.activeClassName = 'medium-editor-insert-image-active';
+        this.elementClassName = 'medium-editor-insert-image';
+        this.activeClassName = this.elementClassName + '-active';
+        this.overlayClassName = this.elementClassName + '-overlay';
         this.label = this.options.label;
 
         this.initToolbar();
@@ -132,13 +133,19 @@ export default class Images {
     insertImage(url, uid, file) {
         const selectedElement = this._plugin.getCore().selectedElement,
             figure = document.createElement('figure'),
+            wrapper = document.createElement('div'),
+            overlay = document.createElement('div'),
             img = document.createElement('img');
         let domImage;
 
-        figure.setAttribute('contenteditable', 'false');
-        selectedElement.parentNode.insertBefore(figure, selectedElement);
+        overlay.classList.add(this.overlayClassName);
+        wrapper.classList.add(this.elementClassName + '-wrapper');
+        wrapper.appendChild(overlay);
+        figure.setAttribute('contenteditable', false);
         figure.classList.add(this.elementClassName);
-        this._plugin.getCore().selectElement(figure);
+        figure.appendChild(wrapper);
+
+        selectedElement.parentNode.insertBefore(figure, selectedElement);
 
         img.alt = '';
         if (uid) {
@@ -148,7 +155,7 @@ export default class Images {
         domImage = new Image();
         domImage.onload = () => {
             img.src = domImage.src;
-            figure.appendChild(img);
+            wrapper.insertBefore(img, overlay);
 
             if (url.match(/^data:/)) {
                 this.upload(file, uid);
@@ -178,14 +185,15 @@ export default class Images {
     selectImage(e) {
         const el = e.target;
 
-        if (el.nodeName.toLowerCase() === 'img' && utils.getClosestWithClassName(el, this.elementClassName)) {
-            el.classList.add(this.activeClassName);
+        if (el.classList.contains(this.overlayClassName)) {
+            const overlay = el;
+            overlay.classList.add(this.activeClassName);
 
             if (this.options.caption) {
-                this.showCaption(el);
+                this.showCaption(overlay);
             }
 
-            this._editor.selectElement(el);
+            this._editor.selectElement(overlay);
         }
     }
 
@@ -194,7 +202,7 @@ export default class Images {
         let clickedImage, images;
 
         // Unselect all selected images. If an image is clicked, unselect all except this one.
-        if (el.nodeName.toLowerCase() === 'img' && el.classList.contains(this.activeClassName)) {
+        if (el.classList.contains(this.activeClassName)) {
             clickedImage = el;
         }
 
@@ -239,7 +247,7 @@ export default class Images {
     }
 
     caretMoveToAndSelectImage(e) {
-        this._plugin.getCore().caretMoveToAndSelect(e, this.elementClassName, this.activeClassName, 'img');
+        this._plugin.getCore().caretMoveToAndSelect(e, this.elementClassName, this.activeClassName, '.' + this.overlayClassName);
     }
 
     deleteFile(image) {

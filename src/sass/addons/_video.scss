@@ -1,19 +1,22 @@
 .medium-editor-insert-video {
-    video {
-        max-width: 100%;
-    }
+    font-size: 0;
 
     &-wrapper {
         position: relative;
         display: inline-block;
         font-size: 0;
     }
+
     &-overlay {
         position: absolute;
         top: 0;
         right: 0;
         bottom: 0;
         left: 0;
+    }
+
+    &-active {
+        border: 5px solid $main-color;
     }
 
     figcaption {
@@ -27,8 +30,4 @@
             content: '動画キャプション';
         }
     }
-}
-
-.medium-editor-insert-video-active {
-    border: 5px solid $main-color;
 }

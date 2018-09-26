@@ -116,48 +116,50 @@ export default class Video {
             alert('ファイルサイズが大きすぎてアップロードできません m(_ _)m');
         }
 
-        this.insert(file);
+        this.insertVideo(file);
 
         this._plugin.getCore().hideButtons();
     }
 
-    insert(file) {
-        const video = document.createElement('video'),
-            source = document.createElement('source'),
+    insertVideo(file) {
+        const selectedElement = this._plugin.getCore().selectedElement,
             figure = document.createElement('figure'),
-            selectedElement = this._plugin.getCore().selectedElement;
+            video = document.createElement('video'),
+            wrapper = document.createElement('div'),
+            overlay = document.createElement('div');
 
-        figure.innerHTML = [
-            `<div class="${this.elementClassName}-wrapper">`,
-            '<video controls muted="true"></video>',
-            `<div class="${this.overlayClassName}"></div>`,
-            '</div>'
-        ].join('');
+        overlay.classList.add(this.overlayClassName);
+        video.setAttribute('controls', '');
+        video.setAttribute('muted', true);
+        wrapper.classList.add(this.elementClassName + '-wrapper');
+        wrapper.appendChild(video);
+        wrapper.appendChild(overlay);
         figure.setAttribute('contenteditable', false);
         figure.classList.add(this.elementClassName);
+        figure.appendChild(wrapper);
 
         selectedElement.parentNode.insertBefore(figure, selectedElement);
 
         this.upload(file, figure);
     }
 
-    replace(url, root) {
+    replaceVideo(url, wrapper) {
         const source = document.createElement('source'),
-            video = root.querySelector('video');
+            video = wrapper.querySelector('video');
 
         source.src = url;
 
         video.appendChild(source);
     }
 
-    upload(file, root) {
+    upload(file, wrapper) {
         const xhr = new XMLHttpRequest(),
             data = new FormData();
 
         xhr.open("POST", this.options.uploadUrl, true);
         xhr.onreadystatechange = () => {
             if (xhr.readyState === 4 && xhr.status === 200) {
-                this.replace(xhr.responseText, root);
+                this.replaceVideo(xhr.responseText, wrapper);
             }
         };
 
