@@ -4,6 +4,10 @@ Vanilla ES2015 (transpiled with Babel) extension for MediumEditor. Extend your f
 
 No dependencies! Jiiihaaa :tada:
 
+# DEMO
+
+demo:[https://pressblog.github.io/medium-editor-insert-plugin/examples/](https://pressblog.github.io/medium-editor-insert-plugin/examples/)
+
 ## Usage
 
 ```html
