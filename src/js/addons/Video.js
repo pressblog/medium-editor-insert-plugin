@@ -137,12 +137,6 @@ export default class Video {
         figure.classList.add(this.elementClassName);
 
         selectedElement.parentNode.insertBefore(figure, selectedElement);
-        selectedElement.remove();
-
-        const newParagraph = document.createElement('p');
-        newParagraph.appendChild(document.createElement('br'));
-        figure.parentNode.insertBefore(newParagraph, figure.nextSibling);
-        this._plugin.getCore().selectElement(newParagraph);
 
         this.upload(file, figure);
     }

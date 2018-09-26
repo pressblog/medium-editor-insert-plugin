@@ -13,7 +13,10 @@
     <body>
         <div id="container">
             <h1 class="title">Medium Editor + insert extension</h1>
-            <div class="editable">
+            <div>
+                <a href="javascript: void(0)" style="text-decoration: underline;" onclick="document.getElementById('editable').innerHTML = '<p><br></p>';">白紙に戻す</a>
+            </div>
+            <div class="editable" id="editable">
                 <p>こんにちは！やっと素敵なブログに出会えて、今書き始めなのですがすごくワクワクしています🤩</p>
                 <p>まずは初投稿ということで、私の自己紹介をします。</p>
                 <figure class="medium-editor-insert-images" contenteditable="false">

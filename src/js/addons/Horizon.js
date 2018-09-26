@@ -34,9 +34,7 @@ export default class Horizon {
 
         hr.classList.add(this.elementClassName);
 
-        selectedElement.parentNode.replaceChild(hr, selectedElement);
-
-        this.createNewParagraph(hr);
+        selectedElement.parentNode.insertBefore(hr, selectedElement);
 
         this._plugin.getCore().hideButtons();
     }
@@ -45,17 +43,14 @@ export default class Horizon {
         const el = e.target;
 
         if (el.classList.contains(this.elementClassName)) {
-            this.createNewParagraph(el);
+            const hr = el,
+                newParagraph = document.createElement('p');
+            newParagraph.appendChild(document.createElement('br'));
+
+            hr.parentNode.insertBefore(newParagraph, hr.nextElementSibling);
+
+            this._editor.selectElement(newParagraph);
+
         }
-    }
-
-    createNewParagraph(el) {
-        const newParagraph = document.createElement('p');
-
-        el.parentNode.insertBefore(newParagraph, el.nextElementSibling);
-
-        this._editor.selectElement(newParagraph);
-
-        newParagraph.appendChild(document.createElement('br'));
     }
 }

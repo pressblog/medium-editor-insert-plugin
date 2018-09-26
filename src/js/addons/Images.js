@@ -114,10 +114,7 @@ export default class Images {
         xhr.open("POST", this.options.uploadUrl, true);
         xhr.onreadystatechange = () => {
             if (xhr.readyState === 4 && xhr.status === 200) {
-                const currentEditor = this._editor.elements.find(editor => {
-                    return editor.contains(this._plugin.getCore().selectedElement);
-                });
-                const image = currentEditor.querySelector(`[data-uid="${uid}"]`);
+                const image = document.querySelector(`[data-uid="${uid}"]`);
 
                 if (image) {
                     this.replaceImage(image, xhr.responseText);
@@ -133,19 +130,17 @@ export default class Images {
     }
 
     insertImage(url, uid, file) {
-        const selectedElement = this._plugin.getCore().selectedElement;
-        const figure = document.createElement('figure');
-
-        selectedElement.parentNode.insertBefore(figure, selectedElement);
-        this._plugin.getCore().selectElement(figure);
-        selectedElement.remove();
-
-        const img = document.createElement('img');
+        const selectedElement = this._plugin.getCore().selectedElement,
+            figure = document.createElement('figure'),
+            img = document.createElement('img');
         let domImage;
 
         figure.setAttribute('contenteditable', 'false');
-        img.alt = '';
+        selectedElement.parentNode.insertBefore(figure, selectedElement);
+        figure.classList.add(this.elementClassName);
+        this._plugin.getCore().selectElement(figure);
 
+        img.alt = '';
         if (uid) {
             img.setAttribute('data-uid', uid);
         }
@@ -161,13 +156,6 @@ export default class Images {
 
         };
         domImage.src = url;
-
-        figure.classList.add(this.elementClassName);
-
-        const newParagraph = document.createElement('p');
-        newParagraph.appendChild(document.createElement('br'));
-        figure.parentNode.insertBefore(newParagraph, figure.nextSibling);
-        this._plugin.getCore().selectElement(newParagraph);
 
         // Return domImage so we can test this function easily
         return domImage;

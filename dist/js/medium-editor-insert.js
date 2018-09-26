@@ -8890,9 +8890,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            hr.classList.add(this.elementClassName);
 
-	            selectedElement.parentNode.replaceChild(hr, selectedElement);
-
-	            this.createNewParagraph(hr);
+	            selectedElement.parentNode.insertBefore(hr, selectedElement);
 
 	            this._plugin.getCore().hideButtons();
 	        }
@@ -8902,19 +8900,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var el = e.target;
 
 	            if (el.classList.contains(this.elementClassName)) {
-	                this.createNewParagraph(el);
+	                var hr = el,
+	                    newParagraph = document.createElement('p');
+	                newParagraph.appendChild(document.createElement('br'));
+
+	                hr.parentNode.insertBefore(newParagraph, hr.nextElementSibling);
+
+	                this._editor.selectElement(newParagraph);
 	            }
-	        }
-	    }, {
-	        key: 'createNewParagraph',
-	        value: function createNewParagraph(el) {
-	            var newParagraph = document.createElement('p');
-
-	            el.parentNode.insertBefore(newParagraph, el.nextElementSibling);
-
-	            this._editor.selectElement(newParagraph);
-
-	            newParagraph.appendChild(document.createElement('br'));
 	        }
 	    }]);
 
@@ -9076,10 +9069,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            xhr.open("POST", this.options.uploadUrl, true);
 	            xhr.onreadystatechange = function () {
 	                if (xhr.readyState === 4 && xhr.status === 200) {
-	                    var currentEditor = _this4._editor.elements.find(function (editor) {
-	                        return editor.contains(_this4._plugin.getCore().selectedElement);
-	                    });
-	                    var image = currentEditor.querySelector('[data-uid="' + uid + '"]');
+	                    var image = document.querySelector('[data-uid="' + uid + '"]');
 
 	                    if (image) {
 	                        _this4.replaceImage(image, xhr.responseText);
@@ -9098,19 +9088,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	        value: function insertImage(url, uid, file) {
 	            var _this5 = this;
 
-	            var selectedElement = this._plugin.getCore().selectedElement;
-	            var figure = document.createElement('figure');
-
-	            selectedElement.parentNode.insertBefore(figure, selectedElement);
-	            this._plugin.getCore().selectElement(figure);
-	            selectedElement.remove();
-
-	            var img = document.createElement('img');
+	            var selectedElement = this._plugin.getCore().selectedElement,
+	                figure = document.createElement('figure'),
+	                img = document.createElement('img');
 	            var domImage = void 0;
 
 	            figure.setAttribute('contenteditable', 'false');
-	            img.alt = '';
+	            selectedElement.parentNode.insertBefore(figure, selectedElement);
+	            figure.classList.add(this.elementClassName);
+	            this._plugin.getCore().selectElement(figure);
 
+	            img.alt = '';
 	            if (uid) {
 	                img.setAttribute('data-uid', uid);
 	            }
@@ -9125,13 +9113,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	                }
 	            };
 	            domImage.src = url;
-
-	            figure.classList.add(this.elementClassName);
-
-	            var newParagraph = document.createElement('p');
-	            newParagraph.appendChild(document.createElement('br'));
-	            figure.parentNode.insertBefore(newParagraph, figure.nextSibling);
-	            this._plugin.getCore().selectElement(newParagraph);
 
 	            // Return domImage so we can test this function easily
 	            return domImage;
@@ -9424,12 +9405,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	            figure.classList.add(this.elementClassName);
 
 	            selectedElement.parentNode.insertBefore(figure, selectedElement);
-	            selectedElement.remove();
-
-	            var newParagraph = document.createElement('p');
-	            newParagraph.appendChild(document.createElement('br'));
-	            figure.parentNode.insertBefore(newParagraph, figure.nextSibling);
-	            this._plugin.getCore().selectElement(newParagraph);
 
 	            this.upload(file, figure);
 	        }
