@@ -9,6 +9,7 @@ export default class Images {
             label: '<span class="fa fa-camera"></span>',
             aria: '画像アップロード',
             preview: true,
+            previewSpinner: '<span class="fa fa-spinner fa-spin"></span>',
             caption: true,
             uploadUrl: 'upload.php',
             deleteUrl: 'delete.php',
@@ -117,6 +118,8 @@ export default class Images {
             if (xhr.readyState === 4 && xhr.status === 200) {
                 const image = document.querySelector(`[data-uid="${uid}"]`);
 
+                this.disablePreviewOverlay(image);
+
                 if (image) {
                     this.replaceImage(image, xhr.responseText);
                 } else {
@@ -158,6 +161,7 @@ export default class Images {
             wrapper.insertBefore(img, overlay);
 
             if (url.match(/^data:/)) {
+                this.enablePreviewOverlay(img);
                 this.upload(file, uid);
             }
 
@@ -180,6 +184,24 @@ export default class Images {
 
         // Return domImage so we can test this function easily
         return domImage;
+    }
+
+    enablePreviewOverlay(image) {
+        const wrapper = image.closest('.' + this.elementClassName),
+            overlay = wrapper.querySelector('.' + this.overlayClassName);
+
+        overlay.classList.add(this.elementClassName + '-preview');
+        if (this.options.previewSpinner) {
+            overlay.innerHTML = this.options.previewSpinner;
+        }
+    }
+
+    disablePreviewOverlay(image) {
+        const wrapper = image.closest('.' + this.elementClassName),
+            overlay = wrapper.querySelector('.' + this.overlayClassName);
+
+        overlay.classList.remove(this.elementClassName + '-preview');
+        overlay.innerHTML = '';
     }
 
     selectImage(e) {

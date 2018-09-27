@@ -94,6 +94,13 @@
     left: 0; }
   .medium-editor-insert-image-active {
     border: 5px solid #15A2DE; }
+  .medium-editor-insert-image-preview {
+    background-color: rgba(255, 255, 255, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: #555; }
   .medium-editor-insert-image figcaption {
     text-align: center;
     color: #ccc;
@@ -117,6 +124,13 @@
     left: 0; }
   .medium-editor-insert-video-active {
     border: 5px solid #15A2DE; }
+  .medium-editor-insert-video-preview {
+    background-color: rgba(255, 255, 255, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: #555; }
   .medium-editor-insert-video figcaption {
     text-align: center;
     color: #ccc;

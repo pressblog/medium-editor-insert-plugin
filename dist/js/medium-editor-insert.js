@@ -8953,6 +8953,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            label: '<span class="fa fa-camera"></span>',
 	            aria: '画像アップロード',
 	            preview: true,
+	            previewSpinner: '<span class="fa fa-spinner fa-spin"></span>',
 	            caption: true,
 	            uploadUrl: 'upload.php',
 	            deleteUrl: 'delete.php',
@@ -9072,6 +9073,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	                if (xhr.readyState === 4 && xhr.status === 200) {
 	                    var image = document.querySelector('[data-uid="' + uid + '"]');
 
+	                    _this4.disablePreviewOverlay(image);
+
 	                    if (image) {
 	                        _this4.replaceImage(image, xhr.responseText);
 	                    } else {
@@ -9116,6 +9119,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                wrapper.insertBefore(img, overlay);
 
 	                if (url.match(/^data:/)) {
+	                    _this5.enablePreviewOverlay(img);
 	                    _this5.upload(file, uid);
 	                }
 	            };
@@ -9138,6 +9142,26 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            // Return domImage so we can test this function easily
 	            return domImage;
+	        }
+	    }, {
+	        key: 'enablePreviewOverlay',
+	        value: function enablePreviewOverlay(image) {
+	            var wrapper = image.closest('.' + this.elementClassName),
+	                overlay = wrapper.querySelector('.' + this.overlayClassName);
+
+	            overlay.classList.add(this.elementClassName + '-preview');
+	            if (this.options.previewSpinner) {
+	                overlay.innerHTML = this.options.previewSpinner;
+	            }
+	        }
+	    }, {
+	        key: 'disablePreviewOverlay',
+	        value: function disablePreviewOverlay(image) {
+	            var wrapper = image.closest('.' + this.elementClassName),
+	                overlay = wrapper.querySelector('.' + this.overlayClassName);
+
+	            overlay.classList.remove(this.elementClassName + '-preview');
+	            overlay.innerHTML = '';
 	        }
 	    }, {
 	        key: 'selectImage',
@@ -9273,6 +9297,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            label: '<span class="fa fa-video-camera"></span>',
 	            aria: '動画アップロード',
 	            preview: true,
+	            previewSpinner: '<span class="fa fa-spinner fa-spin"></span>',
 	            caption: true,
 	            uploadUrl: 'upload.php',
 	            maxBytes: 8 * 1000 * 1000 // 8MB
@@ -9421,6 +9446,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            selectedElement.parentNode.insertBefore(figure, selectedElement);
 
+	            this.enablePreviewOverlay(video);
 	            this.upload(file, figure);
 	        }
 	    }, {
@@ -9434,6 +9460,26 @@ return /******/ (function(modules) { // webpackBootstrap
 	            video.appendChild(source);
 	        }
 	    }, {
+	        key: 'enablePreviewOverlay',
+	        value: function enablePreviewOverlay(video) {
+	            var wrapper = video.closest('.' + this.elementClassName),
+	                overlay = wrapper.querySelector('.' + this.overlayClassName);
+
+	            overlay.classList.add(this.elementClassName + '-preview');
+	            if (this.options.previewSpinner) {
+	                overlay.innerHTML = this.options.previewSpinner;
+	            }
+	        }
+	    }, {
+	        key: 'disablePreviewOverlay',
+	        value: function disablePreviewOverlay(video) {
+	            var wrapper = video.closest('.' + this.elementClassName),
+	                overlay = wrapper.querySelector('.' + this.overlayClassName);
+
+	            overlay.classList.remove(this.elementClassName + '-preview');
+	            overlay.innerHTML = '';
+	        }
+	    }, {
 	        key: 'upload',
 	        value: function upload(file, wrapper) {
 	            var _this3 = this;
@@ -9444,7 +9490,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	            xhr.open("POST", this.options.uploadUrl, true);
 	            xhr.onreadystatechange = function () {
 	                if (xhr.readyState === 4 && xhr.status === 200) {
-	                    _this3.replaceVideo(xhr.responseText, wrapper);
+	                    var video = wrapper.querySelector('video');
+
+	                    if (video) {
+	                        _this3.disablePreviewOverlay(video);
+	                        _this3.replaceVideo(xhr.responseText, wrapper);
+	                    }
 	                }
 	            };
 

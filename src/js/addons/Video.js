@@ -9,6 +9,7 @@ export default class Video {
             label: '<span class="fa fa-video-camera"></span>',
             aria: '動画アップロード',
             preview: true,
+            previewSpinner: '<span class="fa fa-spinner fa-spin"></span>',
             caption: true,
             uploadUrl: 'upload.php',
             maxBytes: 8 * 1000 * 1000 // 8MB
@@ -140,6 +141,7 @@ export default class Video {
 
         selectedElement.parentNode.insertBefore(figure, selectedElement);
 
+        this.enablePreviewOverlay(video);
         this.upload(file, figure);
     }
 
@@ -152,6 +154,24 @@ export default class Video {
         video.appendChild(source);
     }
 
+    enablePreviewOverlay(video) {
+        const wrapper = video.closest('.' + this.elementClassName),
+            overlay = wrapper.querySelector('.' + this.overlayClassName);
+
+        overlay.classList.add(this.elementClassName + '-preview');
+        if (this.options.previewSpinner) {
+            overlay.innerHTML = this.options.previewSpinner;
+        }
+    }
+
+    disablePreviewOverlay(video) {
+        const wrapper = video.closest('.' + this.elementClassName),
+            overlay = wrapper.querySelector('.' + this.overlayClassName);
+
+        overlay.classList.remove(this.elementClassName + '-preview');
+        overlay.innerHTML = '';
+    }
+
     upload(file, wrapper) {
         const xhr = new XMLHttpRequest(),
             data = new FormData();
@@ -159,7 +179,12 @@ export default class Video {
         xhr.open("POST", this.options.uploadUrl, true);
         xhr.onreadystatechange = () => {
             if (xhr.readyState === 4 && xhr.status === 200) {
-                this.replaceVideo(xhr.responseText, wrapper);
+                const video = wrapper.querySelector('video');
+
+                if (video) {
+                    this.disablePreviewOverlay(video);
+                    this.replaceVideo(xhr.responseText, wrapper);
+                }
             }
         };
 
