@@ -8421,6 +8421,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            // https://github.com/yabwe/medium-editor/pull/1046
 	            this._plugin.on(document, 'click', this.toggleButtons.bind(this));
 	            this._plugin.on(document, 'keyup', this.toggleButtons.bind(this));
+	            this._plugin.on(document, 'selectionchange', this.changeSelectionUpdateState.bind(this));
 	            this._plugin.on(this.buttons.getElementsByClassName('medium-editor-insert-buttons-show')[0], 'click', this.toggleAddons.bind(this));
 
 	            // This could be written in one statement when medium-editor 5.15.2 is released
@@ -8627,6 +8628,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	            e.preventDefault();
 
 	            this._plugin.getAddon(name).handleClick(e);
+	        }
+	    }, {
+	        key: 'changeSelectionUpdateState',
+	        value: function changeSelectionUpdateState(event) {
+	            var selectedElement = this._editor.getSelectedParentElement();
+
+	            if (selectedElement.nodeName.toLowerCase() === 'figcaption') {
+	                this._editor.stopSelectionUpdates();
+	            } else {
+	                this._editor.startSelectionUpdates();
+	            }
 	        }
 
 	        // editableKeydownDeleteイベントに登録する
