@@ -8628,24 +8628,170 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            this._plugin.getAddon(name).handleClick(e);
 	        }
+
+	        // editableKeydownDeleteイベントに登録する
+
 	    }, {
-	        key: 'deleteElement',
-	        value: function deleteElement(el) {
-	            if (!el) {
+	        key: 'deleteAddonElement',
+	        value: function deleteAddonElement(event, plugin) {
+	            var selection = window.getSelection();
+	            if (!selection || !selection.rangeCount) {
 	                return;
 	            }
 
-	            var newParagraph = document.createElement('p');
-	            newParagraph.appendChild(document.createElement('br'));
+	            var range = _mediumEditor2.default.selection.getSelectionRange(document),
+	                focusedElement = _mediumEditor2.default.selection.getSelectedParentElement(range);
 
-	            el.parentNode.replaceChild(newParagraph, el);
+	            if (focusedElement.classList.contains(plugin.activeClassName) || focusedElement.querySelector('.' + plugin.activeClassName) // for safari
+	            ) {
+
+	                    event.preventDefault();
+
+	                    var wrapper = focusedElement.closest('.' + plugin.elementClassName),
+	                        newParagraph = document.createElement('p');
+	                    newParagraph.appendChild(document.createElement('br'));
+	                    wrapper.parentNode.insertBefore(newParagraph, wrapper.nextElementSibling);
+	                    _mediumEditor2.default.selection.moveCursor(document, newParagraph, 0);
+	                    wrapper.remove();
+	                }
 	        }
 	    }, {
-	        key: 'caretMoveToAndSelect',
-	        value: function caretMoveToAndSelect(e, elementClassName, activeClassName, targetSelector) {
-	            var el = e.target;
+	        key: 'selectOverlay',
+	        value: function selectOverlay(event, plugin) {
+	            var el = event.target;
 
-	            if ([_mediumEditor2.default.util.keyCode.BACKSPACE, _mediumEditor2.default.util.keyCode.DELETE].indexOf(e.which) === -1 || _mediumEditor2.default.selection.getSelectionHtml(document)) {
+	            if (el.classList.contains(plugin.overlayClassName)) {
+	                var overlay = el;
+	                this.activateOverlay(overlay, plugin.activeClassName);
+
+	                if (plugin.options.caption) {
+	                    this.showCaption(overlay, plugin.elementClassName);
+	                }
+	            }
+	        }
+	    }, {
+	        key: 'unselectOverlay',
+	        value: function unselectOverlay(event, plugin) {
+	            var el = event.target;
+	            var clickedOverlay = void 0;
+
+	            if (el.classList.contains(plugin.activeClassName)) {
+	                clickedOverlay = el;
+	            }
+
+	            this.inactivateAllOverlay(plugin.activeClassName);
+	            this.activateOverlay(clickedOverlay, plugin.activeClassName);
+	        }
+
+	        /*
+	         * @param {HTMLElement} el
+	         * @param {String} rootClassName
+	         */
+
+	    }, {
+	        key: 'showCaption',
+	        value: function showCaption(el, rootClassName) {
+	            var root = el.closest('.' + rootClassName);
+	            var caption = root.querySelector('figcaption');
+
+	            if (!caption) {
+	                caption = document.createElement('figcaption');
+	                caption.setAttribute('contenteditable', true);
+
+	                root.insertBefore(caption, el.nextElementSibling);
+	            }
+	        }
+
+	        /*
+	         * @param {HTMLElement} el
+	         * @param {String} rootClassName
+	         */
+
+	    }, {
+	        key: 'hideCaption',
+	        value: function hideCaption(el, rootClassName) {
+	            var roots = _utils2.default.getElementsByClassName(this._plugin.getEditorElements(), rootClassName);
+	            var figcaption = void 0;
+
+	            Array.prototype.forEach.call(roots, function (root) {
+	                if (!root.contains(el)) {
+	                    figcaption = root.querySelector('figcaption');
+
+	                    if (figcaption && figcaption.textContent.length === 0) {
+	                        figcaption.remove();
+	                    }
+	                }
+	            });
+	        }
+
+	        /*
+	         * @param {HTMLElement} overlay
+	         * @param {String} activeClassName
+	         */
+
+	    }, {
+	        key: 'activateOverlay',
+	        value: function activateOverlay(overlay, activeClassName) {
+	            if (overlay) {
+	                overlay.classList.add(activeClassName);
+
+	                this._editor.selectElement(overlay);
+	            }
+	        }
+	    }, {
+	        key: 'inactivateAllOverlay',
+	        value: function inactivateAllOverlay(activeClassName) {
+	            var overlays = _utils2.default.getElementsByClassName(this._plugin.getEditorElements(), activeClassName);
+
+	            Array.prototype.forEach.call(overlays, function (overlay) {
+	                overlay.classList.remove(activeClassName);
+	            });
+	        }
+
+	        // TODO: ImageやVideoからトリガーしているが、Coreでまとめて一つでトリガーできそう
+
+	    }, {
+	        key: 'focusOnNextElement',
+	        value: function focusOnNextElement(event, plugin) {
+	            var focusedElement = this._editor.getSelectedParentElement(),
+	                wrapper = focusedElement.closest('.' + plugin.elementClassName),
+	                newParagraph = document.createElement('p'),
+	                enableCaption = plugin.options.caption,
+	                isOverlay = focusedElement.classList.contains(plugin.overlayClassName),
+	                isFigcaption = focusedElement.nodeName.toLowerCase() === 'figcaption' && focusedElement.closest('.' + plugin.elementClassName);
+
+	            if (!isOverlay && !isFigcaption) {
+	                return;
+	            }
+
+	            event.preventDefault();
+
+	            if (isOverlay && enableCaption) {
+	                var figcaption = wrapper.querySelector('figcaption');
+
+	                if (figcaption.childNodes.length > 0) {
+	                    // 行末へ
+	                    _mediumEditor2.default.selection.moveCursor(document, figcaption.childNodes[0], figcaption.childNodes[0].length);
+	                } else {
+	                    // 行頭へ
+	                    _mediumEditor2.default.selection.moveCursor(document, figcaption, 0);
+	                }
+	            } else {
+	                newParagraph.appendChild(document.createElement('br'));
+	                wrapper.parentNode.insertBefore(newParagraph, wrapper.nextElementSibling);
+	                _mediumEditor2.default.selection.moveCursor(document, newParagraph, 0);
+	            }
+
+	            this._plugin.getCore().inactivateAllOverlay(plugin.activeClassName);
+	        }
+	    }, {
+	        key: 'focusOnPreviousElement',
+	        value: function focusOnPreviousElement(event, plugin) {
+	            if ([_mediumEditor2.default.util.keyCode.BACKSPACE, _mediumEditor2.default.util.keyCode.DELETE].indexOf(event.which) === -1 || _mediumEditor2.default.selection.getSelectionHtml(document)) {
+	                return;
+	            }
+
+	            if (_mediumEditor2.default.selection.getSelectionHtml(document)) {
 	                return;
 	            }
 
@@ -8659,81 +8805,39 @@ return /******/ (function(modules) { // webpackBootstrap
 	                caretPosition = _mediumEditor2.default.selection.getCaretOffsets(focusedElement).left;
 	            var sibling = void 0;
 
-	            // Is backspace pressed and caret is at the beginning of a paragraph, get previous element
-	            if (e.which === _mediumEditor2.default.util.keyCode.BACKSPACE && caretPosition === 0) {
+	            // backspace：前の文字を削除 / delete：後ろの文字を削除
+	            if (_mediumEditor2.default.util.isKey(event, _mediumEditor2.default.util.keyCode.BACKSPACE) && caretPosition === 0) {
 	                sibling = focusedElement.previousElementSibling;
-	                // Is del pressed and caret is at the end of a paragraph, get next element
-	            } else if (e.which === _mediumEditor2.default.util.keyCode.DELETE && caretPosition === focusedElement.innerText.length) {
+	            } else if (_mediumEditor2.default.util.isKey(event, _mediumEditor2.default.util.keyCode.DELETE) && caretPosition === focusedElement.innerText.length) {
 	                sibling = focusedElement.nextElementSibling;
 	            }
 
-	            if (!sibling || !sibling.classList.contains(elementClassName)) {
+	            if (!sibling) {
 	                return;
 	            }
 
-	            var target = sibling.querySelector(targetSelector);
-	            target.classList.add(activeClassName);
-	            this._editor.selectElement(target);
+	            if (focusedElement.nodeName.toLowerCase() === 'figcaption' && sibling.classList.contains(plugin.elementClassName + '-wrapper')) {
+	                sibling = sibling.closest('.' + plugin.elementClassName);
+	            }
+
+	            if (!sibling.classList.contains(plugin.elementClassName)) {
+	                return;
+	            }
+
+	            event.preventDefault();
+
+	            if (_mediumEditor2.default.util.isKey(event, _mediumEditor2.default.util.keyCode.BACKSPACE) && focusedElement.nodeName.toLowerCase() !== 'figcaption' && plugin.options.caption) {
+	                var figcaption = sibling.querySelector('figcaption');
+	                _mediumEditor2.default.selection.moveCursor(document, figcaption, 0);
+	            } else {
+	                var overlay = sibling.querySelector('.' + plugin.overlayClassName);
+	                overlay.classList.add(plugin.activeClassName);
+	                _mediumEditor2.default.selection.selectNode(overlay, document);
+	            }
 
 	            if (focusedElement.textContent.length === 0) {
 	                focusedElement.remove();
 	            }
-	        }
-	    }, {
-	        key: 'moveToNewUnderParagraph',
-	        value: function moveToNewUnderParagraph(e, elementClassName, activeClassName) {
-	            if (e.which !== _mediumEditor2.default.util.keyCode.ENTER) return;
-
-	            var targets = _utils2.default.getElementsByClassName(this._plugin.getEditorElements(), activeClassName),
-	                activeTarget = targets.find(function (_target) {
-	                return _target.classList.contains(activeClassName);
-	            });
-
-	            if (!activeTarget) return;
-
-	            var wrapper = _utils2.default.getClosestWithClassName(activeTarget, elementClassName);
-	            var newParagraph = document.createElement('p');
-	            wrapper.parentNode.insertBefore(newParagraph, wrapper.nextElementSibling);
-
-	            this._editor.selectElement(newParagraph);
-
-	            newParagraph.appendChild(document.createElement('br'));
-
-	            Array.prototype.forEach.call(targets, function (_target) {
-	                _target.classList.remove(activeClassName);
-	            });
-
-	            // 作成した段落からlickイベントによりさらに段落を作成されるので止める
-	            e.preventDefault();
-	        }
-	    }, {
-	        key: 'showCaption',
-	        value: function showCaption(el, selector) {
-	            var wrapper = el.closest(selector);
-	            var caption = wrapper.querySelector('figcaption');
-
-	            if (!caption) {
-	                caption = document.createElement('figcaption');
-	                caption.setAttribute('contenteditable', true);
-
-	                wrapper.insertBefore(caption, el.nextElementSibling);
-	            }
-	        }
-	    }, {
-	        key: 'hideCaption',
-	        value: function hideCaption(el, elementClassName) {
-	            var wrappers = _utils2.default.getElementsByClassName(this._plugin.getEditorElements(), elementClassName);
-	            var figcaption = void 0;
-
-	            Array.prototype.forEach.call(wrappers, function (wrapper) {
-	                if (!wrapper.contains(el)) {
-	                    figcaption = wrapper.querySelector('figcaption');
-
-	                    if (figcaption && figcaption.textContent.length === 0) {
-	                        figcaption.remove();
-	                    }
-	                }
-	            });
 	        }
 	    }]);
 
@@ -8996,9 +9100,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            this._plugin.on(document, 'click', this.unselectImage.bind(this));
 	            this._plugin.on(document, 'click', this.hideCaption.bind(this));
-	            this._plugin.on(document, 'keydown', this.moveToNextParagraph.bind(this));
-	            this._plugin.on(document, 'keydown', this.removeImage.bind(this));
-	            this._plugin.on(document, 'keydown', this.caretMoveToAndSelectImage.bind(this));
+
+	            this._plugin.subscribe('editableKeydownDelete', this.handleDelete.bind(this));
+	            this._plugin.subscribe('editableKeydownEnter', this.focusOnNextElement.bind(this));
 
 	            this._plugin.getEditorElements().forEach(function (editor) {
 	                _this._plugin.on(editor, 'click', _this.selectImage.bind(_this));
@@ -9164,81 +9268,35 @@ return /******/ (function(modules) { // webpackBootstrap
 	            overlay.innerHTML = '';
 	        }
 	    }, {
+	        key: 'focusOnNextElement',
+	        value: function focusOnNextElement(e) {
+	            this._plugin.getCore().focusOnNextElement(e, this);
+	        }
+	    }, {
+	        key: 'handleDelete',
+	        value: function handleDelete(e) {
+	            this._plugin.getCore().deleteAddonElement(e, this);
+	            this._plugin.getCore().focusOnPreviousElement(e, this);
+	        }
+	    }, {
 	        key: 'selectImage',
 	        value: function selectImage(e) {
-	            var el = e.target;
-
-	            if (el.classList.contains(this.overlayClassName)) {
-	                var overlay = el;
-	                overlay.classList.add(this.activeClassName);
-
-	                if (this.options.caption) {
-	                    this.showCaption(overlay);
-	                }
-
-	                this._editor.selectElement(overlay);
-	            }
+	            this._plugin.getCore().selectOverlay(e, this);
 	        }
 	    }, {
 	        key: 'unselectImage',
 	        value: function unselectImage(e) {
-	            var _this6 = this;
-
-	            var el = e.target;
-	            var clickedImage = void 0,
-	                images = void 0;
-
-	            // Unselect all selected images. If an image is clicked, unselect all except this one.
-	            if (el.classList.contains(this.activeClassName)) {
-	                clickedImage = el;
-	            }
-
-	            images = _utils2.default.getElementsByClassName(this._plugin.getEditorElements(), this.activeClassName);
-	            Array.prototype.forEach.call(images, function (image) {
-	                if (image !== clickedImage) {
-	                    image.classList.remove(_this6.activeClassName);
-	                }
-	            });
+	            this._plugin.getCore().unselectOverlay(e, this);
 	        }
 	    }, {
 	        key: 'showCaption',
-	        value: function showCaption(el) {
-	            this._plugin.getCore().showCaption(el, '.' + this.elementClassName);
+	        value: function showCaption(overlay) {
+	            this._plugin.getCore().showCaption(overlay, this.elementClassName);
 	        }
 	    }, {
 	        key: 'hideCaption',
 	        value: function hideCaption(e) {
-	            var el = e.target;
-
-	            this._plugin.getCore().hideCaption(el, this.elementClassName);
-	        }
-	    }, {
-	        key: 'removeImage',
-	        value: function removeImage(e) {
-	            if ([_mediumEditor2.default.util.keyCode.BACKSPACE, _mediumEditor2.default.util.keyCode.DELETE].indexOf(e.which) === -1) return;
-
-	            var selection = window.getSelection();
-	            if (!selection || !selection.rangeCount) return;
-
-	            var range = _mediumEditor2.default.selection.getSelectionRange(document),
-	                focusedElement = _mediumEditor2.default.selection.getSelectedParentElement(range);
-
-	            if (focusedElement.classList.contains(this.activeClassName) || focusedElement.querySelector('.' + this.activeClassName) // for safari
-	            ) {
-	                    var wrapper = focusedElement.closest('.' + this.elementClassName);
-
-	                    this._plugin.getCore().deleteElement(wrapper);
-	                }
-	        }
-	    }, {
-	        key: 'moveToNextParagraph',
-	        value: function moveToNextParagraph(e) {
-	            this._plugin.getCore().moveToNewUnderParagraph(e, this.elementClassName, this.activeClassName);
-	        }
-	    }, {
-	        key: 'caretMoveToAndSelectImage',
-	        value: function caretMoveToAndSelectImage(e) {
-	            this._plugin.getCore().caretMoveToAndSelect(e, this.elementClassName, this.activeClassName, '.' + this.overlayClassName);
+	            this._plugin.getCore().hideCaption(e.target, this.elementClassName);
 	        }
 	    }, {
 	        key: 'deleteFile',
@@ -9322,9 +9380,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            this._plugin.on(document, 'click', this.unselectVideo.bind(this));
 	            this._plugin.on(document, 'click', this.hideCaption.bind(this));
-	            this._plugin.on(document, 'keydown', this.moveToNextParagraph.bind(this));
-	            this._plugin.on(document, 'keydown', this.removeVideo.bind(this));
-	            this._plugin.on(document, 'keydown', this.caretMoveToAndSelectVideo.bind(this));
+
+	            this._plugin.subscribe('editableKeydownDelete', this.handleDelete.bind(this));
+	            this._plugin.subscribe('editableKeydownEnter', this.focusOnNextElement.bind(this));
 
 	            this._plugin.getEditorElements().forEach(function (editor) {
 	                _this._plugin.on(editor, 'click', _this.selectVideo.bind(_this));
@@ -9340,77 +9398,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this._plugin.on(this._input, 'change', this.uploadFile.bind(this));
 
 	            this._input.click();
-	        }
-	    }, {
-	        key: 'selectVideo',
-	        value: function selectVideo(e) {
-	            var el = e.target;
-
-	            if (el.classList.contains(this.overlayClassName) && _utils2.default.getClosestWithClassName(e.target, this.elementClassName)) {
-	                el.classList.add(this.activeClassName);
-
-	                if (this.options.caption) {
-	                    this.showCaption(el);
-	                }
-
-	                this._editor.selectElement(el);
-	            }
-	        }
-
-	        // TODO: Image.removeImageと全く同じ処理
-
-	    }, {
-	        key: 'removeVideo',
-	        value: function removeVideo(e) {
-	            if ([_mediumEditor2.default.util.keyCode.BACKSPACE, _mediumEditor2.default.util.keyCode.DELETE].indexOf(e.which) === -1) return;
-
-	            var selection = window.getSelection();
-	            if (!selection || !selection.rangeCount) return;
-
-	            var range = _mediumEditor2.default.selection.getSelectionRange(document),
-	                focusedElement = _mediumEditor2.default.selection.getSelectedParentElement(range);
-
-	            if (focusedElement.classList.contains(this.activeClassName) || focusedElement.querySelector('.' + this.activeClassName) // for safari
-	            ) {
-	                    var wrapper = focusedElement.closest('.' + this.elementClassName);
-
-	                    this._plugin.getCore().deleteElement(wrapper);
-	                }
-	        }
-
-	        // TODO: Imageと合わせてリファクタ
-
-	    }, {
-	        key: 'unselectVideo',
-	        value: function unselectVideo(e) {
-	            var _this2 = this;
-
-	            var el = e.target;
-	            var selectedVideo = void 0,
-	                videos = void 0;
-
-	            if (el.classList.contains(this.activeClassName)) {
-	                selectedVideo = el;
-	            }
-
-	            videos = _utils2.default.getElementsByClassName(this._plugin.getEditorElements(), this.activeClassName);
-	            Array.prototype.forEach.call(videos, function (video) {
-	                if (video !== selectedVideo) {
-	                    video.classList.remove(_this2.activeClassName);
-	                }
-	            });
-	        }
-	    }, {
-	        key: 'showCaption',
-	        value: function showCaption(el) {
-	            this._plugin.getCore().showCaption(el, '.' + this.elementClassName);
-	        }
-	    }, {
-	        key: 'hideCaption',
-	        value: function hideCaption(e) {
-	            var el = e.target;
-
-	            this._plugin.getCore().hideCaption(el, this.elementClassName);
 	        }
 	    }, {
 	        key: 'uploadFile',
@@ -9482,7 +9469,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }, {
 	        key: 'upload',
 	        value: function upload(file, wrapper) {
-	            var _this3 = this;
+	            var _this2 = this;
 
 	            var xhr = new XMLHttpRequest(),
 	                data = new FormData();
@@ -9493,8 +9480,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    var video = wrapper.querySelector('video');
 
 	                    if (video) {
-	                        _this3.disablePreviewOverlay(video);
-	                        _this3.replaceVideo(xhr.responseText, wrapper);
+	                        _this2.disablePreviewOverlay(video);
+	                        _this2.replaceVideo(xhr.responseText, wrapper);
 	                    }
 	                }
 	            };
@@ -9503,14 +9490,35 @@ return /******/ (function(modules) { // webpackBootstrap
 	            xhr.send(data);
 	        }
 	    }, {
-	        key: 'moveToNextParagraph',
-	        value: function moveToNextParagraph(e) {
-	            this._plugin.getCore().moveToNewUnderParagraph(e, this.elementClassName, this.activeClassName);
+	        key: 'focusOnNextElement',
+	        value: function focusOnNextElement(e) {
+	            this._plugin.getCore().focusOnNextElement(e, this);
 	        }
 	    }, {
-	        key: 'caretMoveToAndSelectVideo',
-	        value: function caretMoveToAndSelectVideo(e) {
-	            this._plugin.getCore().caretMoveToAndSelect(e, this.elementClassName, this.activeClassName, '.' + this.overlayClassName);
+	        key: 'selectVideo',
+	        value: function selectVideo(e) {
+	            this._plugin.getCore().selectOverlay(e, this);
+	        }
+	    }, {
+	        key: 'unselectVideo',
+	        value: function unselectVideo(e) {
+	            this._plugin.getCore().unselectOverlay(e, this);
+	        }
+	    }, {
+	        key: 'showCaption',
+	        value: function showCaption(overlay) {
+	            this._plugin.getCore().showCaption(overlay, this.elementClassName);
+	        }
+	    }, {
+	        key: 'hideCaption',
+	        value: function hideCaption(e) {
+	            this._plugin.getCore().hideCaption(e.target, this.elementClassName);
+	        }
+	    }, {
+	        key: 'handleDelete',
+	        value: function handleDelete(e) {
+	            this._plugin.getCore().deleteAddonElement(e, this);
+	            this._plugin.getCore().focusOnPreviousElement(e, this);
 	        }
 	    }]);
 

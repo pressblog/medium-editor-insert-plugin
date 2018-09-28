@@ -212,23 +212,151 @@ export default class Core {
         this._plugin.getAddon(name).handleClick(e);
     }
 
-    deleteElement(el) {
-        if (!el) {
+    // editableKeydownDeleteイベントに登録する
+    deleteAddonElement(event, plugin) {
+        const selection = window.getSelection();
+        if (!selection || !selection.rangeCount) {
             return;
         }
 
-        const newParagraph = document.createElement('p');
-        newParagraph.appendChild(document.createElement('br'));
+        const range = MediumEditor.selection.getSelectionRange(document),
+            focusedElement = MediumEditor.selection.getSelectedParentElement(range);
 
-        el.parentNode.replaceChild(newParagraph, el);
+        if (focusedElement.classList.contains(plugin.activeClassName)
+            || focusedElement.querySelector('.' + plugin.activeClassName) // for safari
+        ) {
+
+            event.preventDefault();
+
+            const wrapper = focusedElement.closest('.' + plugin.elementClassName),
+                newParagraph = document.createElement('p');
+            newParagraph.appendChild(document.createElement('br'));
+            wrapper.parentNode.insertBefore(newParagraph, wrapper.nextElementSibling);
+            MediumEditor.selection.moveCursor(document, newParagraph, 0);
+            wrapper.remove();
+        }
     }
 
-    caretMoveToAndSelect(e, elementClassName, activeClassName, targetSelector) {
-        const el = e.target;
+    selectOverlay(event, plugin) {
+        const el = event.target;
 
-        if ([MediumEditor.util.keyCode.BACKSPACE, MediumEditor.util.keyCode.DELETE].indexOf(e.which) === -1
+        if (el.classList.contains(plugin.overlayClassName)) {
+            const overlay = el;
+            this.activateOverlay(overlay, plugin.activeClassName);
+
+            if (plugin.options.caption) {
+                this.showCaption(overlay, plugin.elementClassName);
+            }
+        }
+    }
+
+    unselectOverlay(event, plugin) {
+        const el = event.target;
+        let clickedOverlay;
+
+        if (el.classList.contains(plugin.activeClassName)) {
+            clickedOverlay = el;
+        }
+
+        this.inactivateAllOverlay(plugin.activeClassName);
+        this.activateOverlay(clickedOverlay, plugin.activeClassName);
+    }
+
+    /*
+     * @param {HTMLElement} el
+     * @param {String} rootClassName
+     */
+    showCaption(el, rootClassName) {
+        const root = el.closest('.' + rootClassName);
+        let caption = root.querySelector('figcaption');
+
+        if (!caption) {
+            caption = document.createElement('figcaption');
+            caption.setAttribute('contenteditable', true);
+
+            root.insertBefore(caption, el.nextElementSibling);
+        }
+    }
+
+    /*
+     * @param {HTMLElement} el
+     * @param {String} rootClassName
+     */
+    hideCaption(el, rootClassName) {
+        const roots = utils.getElementsByClassName(this._plugin.getEditorElements(), rootClassName);
+        let figcaption;
+
+        Array.prototype.forEach.call(roots, root => {
+            if (!root.contains(el)) {
+                figcaption = root.querySelector('figcaption');
+
+                if (figcaption && figcaption.textContent.length === 0) {
+                    figcaption.remove();
+                }
+            }
+        });
+    }
+
+    /*
+     * @param {HTMLElement} overlay
+     * @param {String} activeClassName
+     */
+    activateOverlay(overlay, activeClassName) {
+        if (overlay) {
+            overlay.classList.add(activeClassName);
+
+            this._editor.selectElement(overlay);
+        }
+    }
+
+    inactivateAllOverlay(activeClassName) {
+        const overlays = utils.getElementsByClassName(this._plugin.getEditorElements(), activeClassName);
+
+        Array.prototype.forEach.call(overlays, overlay => {
+            overlay.classList.remove(activeClassName);
+        });
+    }
+
+    // TODO: ImageやVideoからトリガーしているが、Coreでまとめて一つでトリガーできそう
+    focusOnNextElement(event, plugin) {
+        const focusedElement = this._editor.getSelectedParentElement(),
+            wrapper = focusedElement.closest('.' + plugin.elementClassName),
+            newParagraph = document.createElement('p'),
+            enableCaption = plugin.options.caption,
+            isOverlay = focusedElement.classList.contains(plugin.overlayClassName),
+            isFigcaption = focusedElement.nodeName.toLowerCase() === 'figcaption' && focusedElement.closest('.' + plugin.elementClassName);
+
+        if (!isOverlay && !isFigcaption) {
+            return;
+        }
+
+        event.preventDefault();
+
+        if (isOverlay && enableCaption) {
+            const figcaption = wrapper.querySelector('figcaption');
+
+            if (figcaption.childNodes.length > 0) { // 行末へ
+                MediumEditor.selection.moveCursor(document, figcaption.childNodes[0], figcaption.childNodes[0].length);
+            } else { // 行頭へ
+                MediumEditor.selection.moveCursor(document, figcaption, 0);
+            }
+        } else {
+            newParagraph.appendChild(document.createElement('br'));
+            wrapper.parentNode.insertBefore(newParagraph, wrapper.nextElementSibling);
+            MediumEditor.selection.moveCursor(document, newParagraph, 0);
+        }
+
+        this._plugin.getCore().inactivateAllOverlay(plugin.activeClassName);
+    }
+
+    focusOnPreviousElement(event, plugin) {
+        if ([MediumEditor.util.keyCode.BACKSPACE, MediumEditor.util.keyCode.DELETE].indexOf(event.which) === -1
             || MediumEditor.selection.getSelectionHtml(document)
         ) {
+            return;
+        }
+
+        if (MediumEditor.selection.getSelectionHtml(document)) {
             return;
         }
 
@@ -242,76 +370,38 @@ export default class Core {
             caretPosition = MediumEditor.selection.getCaretOffsets(focusedElement).left;
         let sibling;
 
-        // Is backspace pressed and caret is at the beginning of a paragraph, get previous element
-        if (e.which === MediumEditor.util.keyCode.BACKSPACE && caretPosition === 0) {
+        // backspace：前の文字を削除 / delete：後ろの文字を削除
+        if (MediumEditor.util.isKey(event, MediumEditor.util.keyCode.BACKSPACE) && caretPosition === 0) {
             sibling = focusedElement.previousElementSibling;
-            // Is del pressed and caret is at the end of a paragraph, get next element
-        } else if (e.which === MediumEditor.util.keyCode.DELETE && caretPosition === focusedElement.innerText.length) {
+        } else if (MediumEditor.util.isKey(event, MediumEditor.util.keyCode.DELETE) && caretPosition === focusedElement.innerText.length) {
             sibling = focusedElement.nextElementSibling;
         }
 
-        if (!sibling || !sibling.classList.contains(elementClassName)) {
+        if (!sibling) {
             return;
         }
 
-        const target = sibling.querySelector(targetSelector);
-        target.classList.add(activeClassName);
-        this._editor.selectElement(target);
+        if (focusedElement.nodeName.toLowerCase() === 'figcaption' && sibling.classList.contains(plugin.elementClassName + '-wrapper')) {
+            sibling = sibling.closest('.' + plugin.elementClassName);
+        }
+
+        if (!sibling.classList.contains(plugin.elementClassName)) {
+            return;
+        }
+
+        event.preventDefault();
+
+        if (MediumEditor.util.isKey(event, MediumEditor.util.keyCode.BACKSPACE) && focusedElement.nodeName.toLowerCase() !== 'figcaption' && plugin.options.caption) {
+            const figcaption = sibling.querySelector('figcaption');
+            MediumEditor.selection.moveCursor(document, figcaption, 0);
+        } else {
+            const overlay = sibling.querySelector('.' + plugin.overlayClassName);
+            overlay.classList.add(plugin.activeClassName);
+            MediumEditor.selection.selectNode(overlay, document);
+        }
 
         if (focusedElement.textContent.length === 0) {
             focusedElement.remove();
         }
     }
-
-    moveToNewUnderParagraph(e, elementClassName, activeClassName) {
-        if (e.which !== MediumEditor.util.keyCode.ENTER) return;
-
-        const targets = utils.getElementsByClassName(this._plugin.getEditorElements(), activeClassName),
-            activeTarget = targets.find((_target) => { return _target.classList.contains(activeClassName); });
-
-        if (!activeTarget) return;
-
-        const wrapper = utils.getClosestWithClassName(activeTarget, elementClassName);
-        const newParagraph = document.createElement('p');
-        wrapper.parentNode.insertBefore(newParagraph, wrapper.nextElementSibling);
-
-        this._editor.selectElement(newParagraph);
-
-        newParagraph.appendChild(document.createElement('br'));
-
-        Array.prototype.forEach.call(targets, (_target) => {
-            _target.classList.remove(activeClassName);
-        });
-
-        // 作成した段落からlickイベントによりさらに段落を作成されるので止める
-        e.preventDefault();
-    }
-
-    showCaption(el, selector) {
-        const wrapper = el.closest(selector);
-        let caption = wrapper.querySelector('figcaption');
-
-        if (!caption) {
-            caption = document.createElement('figcaption');
-            caption.setAttribute('contenteditable', true);
-
-            wrapper.insertBefore(caption, el.nextElementSibling);
-        }
-    }
-
-    hideCaption(el, elementClassName) {
-        const wrappers = utils.getElementsByClassName(this._plugin.getEditorElements(), elementClassName);
-        let figcaption;
-
-        Array.prototype.forEach.call(wrappers, wrapper => {
-            if (!wrapper.contains(el)) {
-                figcaption = wrapper.querySelector('figcaption');
-
-                if (figcaption && figcaption.textContent.length === 0) {
-                    figcaption.remove();
-                }
-            }
-        });
-    }
-
 }

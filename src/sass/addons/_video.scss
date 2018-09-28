@@ -32,8 +32,9 @@
         text-align: center;
         color: #ccc;
         margin-top: 8px;
-        font-size: 0.7rem;
+        font-size: 16px;
         cursor: text;
+        outline: none;
 
         &:empty:before {
             content: '動画キャプション';

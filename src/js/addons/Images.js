@@ -52,9 +52,9 @@ export default class Images {
     events() {
         this._plugin.on(document, 'click', this.unselectImage.bind(this));
         this._plugin.on(document, 'click', this.hideCaption.bind(this));
-        this._plugin.on(document, 'keydown', this.moveToNextParagraph.bind(this));
-        this._plugin.on(document, 'keydown', this.removeImage.bind(this));
-        this._plugin.on(document, 'keydown', this.caretMoveToAndSelectImage.bind(this));
+
+        this._plugin.subscribe('editableKeydownDelete', this.handleDelete.bind(this));
+        this._plugin.subscribe('editableKeydownEnter', this.focusOnNextElement.bind(this));
 
         this._plugin.getEditorElements().forEach((editor) => {
             this._plugin.on(editor, 'click', this.selectImage.bind(this));
@@ -204,72 +204,29 @@ export default class Images {
         overlay.innerHTML = '';
     }
 
+    focusOnNextElement(e) {
+        this._plugin.getCore().focusOnNextElement(e, this);
+    }
+
+    handleDelete(e) {
+        this._plugin.getCore().deleteAddonElement(e, this);
+        this._plugin.getCore().focusOnPreviousElement(e, this);
+    }
+
     selectImage(e) {
-        const el = e.target;
-
-        if (el.classList.contains(this.overlayClassName)) {
-            const overlay = el;
-            overlay.classList.add(this.activeClassName);
-
-            if (this.options.caption) {
-                this.showCaption(overlay);
-            }
-
-            this._editor.selectElement(overlay);
-        }
+        this._plugin.getCore().selectOverlay(e, this);
     }
 
     unselectImage(e) {
-        const el = e.target;
-        let clickedImage, images;
-
-        // Unselect all selected images. If an image is clicked, unselect all except this one.
-        if (el.classList.contains(this.activeClassName)) {
-            clickedImage = el;
-        }
-
-        images = utils.getElementsByClassName(this._plugin.getEditorElements(), this.activeClassName);
-        Array.prototype.forEach.call(images, (image) => {
-            if (image !== clickedImage) {
-                image.classList.remove(this.activeClassName);
-            }
-        });
+        this._plugin.getCore().unselectOverlay(e, this);
     }
 
-    showCaption(el) {
-        this._plugin.getCore().showCaption(el, '.' + this.elementClassName);
+    showCaption(overlay) {
+        this._plugin.getCore().showCaption(overlay, this.elementClassName);
     }
 
     hideCaption(e) {
-        const el = e.target;
-
-        this._plugin.getCore().hideCaption(el, this.elementClassName);
-    }
-
-    removeImage(e) {
-        if ([MediumEditor.util.keyCode.BACKSPACE, MediumEditor.util.keyCode.DELETE].indexOf(e.which) === -1) return;
-
-        const selection = window.getSelection();
-        if (!selection || !selection.rangeCount) return;
-
-        const range = MediumEditor.selection.getSelectionRange(document),
-            focusedElement = MediumEditor.selection.getSelectedParentElement(range);
-
-        if (focusedElement.classList.contains(this.activeClassName)
-            || focusedElement.querySelector('.' + this.activeClassName) // for safari
-        ) {
-            const wrapper = focusedElement.closest('.' + this.elementClassName);
-
-            this._plugin.getCore().deleteElement(wrapper);
-        }
-    }
-
-    moveToNextParagraph(e) {
-        this._plugin.getCore().moveToNewUnderParagraph(e, this.elementClassName, this.activeClassName);
-    }
-
-    caretMoveToAndSelectImage(e) {
-        this._plugin.getCore().caretMoveToAndSelect(e, this.elementClassName, this.activeClassName, '.' + this.overlayClassName);
+        this._plugin.getCore().hideCaption(e.target, this.elementClassName);
     }
 
     deleteFile(image) {

@@ -30,9 +30,9 @@ export default class Video {
     events() {
         this._plugin.on(document, 'click', this.unselectVideo.bind(this));
         this._plugin.on(document, 'click', this.hideCaption.bind(this));
-        this._plugin.on(document, 'keydown', this.moveToNextParagraph.bind(this));
-        this._plugin.on(document, 'keydown', this.removeVideo.bind(this));
-        this._plugin.on(document, 'keydown', this.caretMoveToAndSelectVideo.bind(this));
+
+        this._plugin.subscribe('editableKeydownDelete', this.handleDelete.bind(this));
+        this._plugin.subscribe('editableKeydownEnter', this.focusOnNextElement.bind(this));
 
         this._plugin.getEditorElements().forEach(editor => {
             this._plugin.on(editor, 'click', this.selectVideo.bind(this));
@@ -47,67 +47,6 @@ export default class Video {
         this._plugin.on(this._input, 'change', this.uploadFile.bind(this));
 
         this._input.click();
-    }
-
-    selectVideo(e) {
-        const el = e.target;
-
-        if (el.classList.contains(this.overlayClassName) && utils.getClosestWithClassName(e.target, this.elementClassName)) {
-            el.classList.add(this.activeClassName);
-
-            if (this.options.caption) {
-                this.showCaption(el);
-            }
-
-
-            this._editor.selectElement(el);
-        }
-    }
-
-    // TODO: Image.removeImageと全く同じ処理
-    removeVideo(e) {
-        if ([MediumEditor.util.keyCode.BACKSPACE, MediumEditor.util.keyCode.DELETE].indexOf(e.which) === -1) return;
-
-        const selection = window.getSelection();
-        if (!selection || !selection.rangeCount) return;
-
-        const range = MediumEditor.selection.getSelectionRange(document),
-            focusedElement = MediumEditor.selection.getSelectedParentElement(range);
-
-        if (focusedElement.classList.contains(this.activeClassName)
-            || focusedElement.querySelector('.' + this.activeClassName) // for safari
-        ) {
-            const wrapper = focusedElement.closest('.' + this.elementClassName);
-
-            this._plugin.getCore().deleteElement(wrapper);
-        }
-    }
-
-    // TODO: Imageと合わせてリファクタ
-    unselectVideo(e) {
-        const el = e.target;
-        let selectedVideo, videos;
-
-        if (el.classList.contains(this.activeClassName)) {
-            selectedVideo = el;
-        }
-
-        videos = utils.getElementsByClassName(this._plugin.getEditorElements(), this.activeClassName);
-        Array.prototype.forEach.call(videos, video => {
-            if (video !== selectedVideo) {
-                video.classList.remove(this.activeClassName);
-            }
-        });
-    }
-
-    showCaption(el) {
-        this._plugin.getCore().showCaption(el, '.' + this.elementClassName);
-    }
-
-    hideCaption(e) {
-        const el = e.target;
-
-        this._plugin.getCore().hideCaption(el, this.elementClassName);
     }
 
     uploadFile() {
@@ -192,12 +131,29 @@ export default class Video {
         xhr.send(data);
     }
 
-    moveToNextParagraph(e) {
-        this._plugin.getCore().moveToNewUnderParagraph(e, this.elementClassName, this.activeClassName);
+    focusOnNextElement(e) {
+        this._plugin.getCore().focusOnNextElement(e, this);
     }
 
-    caretMoveToAndSelectVideo(e) {
-        this._plugin.getCore().caretMoveToAndSelect(e, this.elementClassName, this.activeClassName, '.' + this.overlayClassName);
+    selectVideo(e) {
+        this._plugin.getCore().selectOverlay(e, this);
+    }
+
+    unselectVideo(e) {
+        this._plugin.getCore().unselectOverlay(e, this);
+    }
+
+    showCaption(overlay) {
+        this._plugin.getCore().showCaption(overlay, this.elementClassName);
+    }
+
+    hideCaption(e) {
+        this._plugin.getCore().hideCaption(e.target, this.elementClassName);
+    }
+
+    handleDelete(e) {
+        this._plugin.getCore().deleteAddonElement(e, this);
+        this._plugin.getCore().focusOnPreviousElement(e, this);
     }
 
 }
