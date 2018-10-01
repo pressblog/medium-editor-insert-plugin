@@ -1,6 +1,7 @@
 import MediumEditor from 'medium-editor';
 import utils from '../utils';
 import Toolbar from '../Toolbar';
+import { combineLatest } from 'rxjs';
 
 export default class Video {
 
@@ -53,7 +54,11 @@ export default class Video {
         const file = this._input.files[0];
 
         if (file.size > this.options.maxBytes) {
-            alert('ファイルサイズが大きすぎてアップロードできません m(_ _)m');
+            this._plugin.getCore().hideButtons();
+
+            const errorObj = { type: 'error', name: 'BigFileSizeError', data: { maxBytes: this.options.maxBytes, size: file.size } };
+            this._plugin.callback(errorObj);
+            return;
         }
 
         this.insertVideo(file);

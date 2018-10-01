@@ -73,35 +73,42 @@
                 this.label = this.options.label;
             };
 
-CustomAddon.prototype.handleClick = function () {
-    console.log('hell yeah!');
-};
+            CustomAddon.prototype.handleClick = function () {
+                console.log('hell yeah!');
+            };
 
-var editor = new MediumEditor('.editable', {
-    toolbar: {
-        buttons: [
-            'bold', 'italic', 'underline', 'strikethrough',
-            'superscript', 'subscript',
-            'image',
-            'html',
-            'orderedlist', 'unorderedlist',
-            'indent', 'outdent',
-            'justifyCenter', 'justifyFull', 'justifyLeft', 'justifyRight',
-            'removeFormat',
-            'quote',
-            'pre',
-            'h1', 'h2', 'h3', 'h4', 'h5', 'h6'
-        ]
-    },
-    buttonLabels: 'fontawesome',
-    extensions: {
-        'insert': new MediumEditorInsert({
-            addons: {
-                custom: CustomAddon,
-            }
-        })
-    }
-});
+            var editor = new MediumEditor('.editable', {
+                toolbar: {
+                    buttons: [
+                        'bold', 'italic', 'underline', 'strikethrough',
+                        'superscript', 'subscript',
+                        'image',
+                        'html',
+                        'orderedlist', 'unorderedlist',
+                        'indent', 'outdent',
+                        'justifyCenter', 'justifyFull', 'justifyLeft', 'justifyRight',
+                        'removeFormat',
+                        'quote',
+                        'pre',
+                        'h1', 'h2', 'h3', 'h4', 'h5', 'h6'
+                    ]
+                },
+                buttonLabels: 'fontawesome',
+                extensions: {
+                    'insert': new MediumEditorInsert({
+                        addons: {
+                            custom: CustomAddon,
+                        },
+                        callback: function (obj) {
+                            if (obj.type === 'error') {
+                                if (obj.name === 'BigFileSizeError') {
+                                    alert('ファイルサイズが大きすぎてアップロードできませんでした');
+                                }
+                            }
+                        }
+                    })
+                }
+            });
         </script>
     </body>
 </html>
