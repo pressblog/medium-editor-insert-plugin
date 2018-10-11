@@ -2833,7 +2833,7 @@ media-typer@0.3.0:
 
 "medium-editor@https://github.com/pressblog/medium-editor.git#master":
   version "5.23.3"
-  resolved "https://github.com/pressblog/medium-editor.git#3076fd9a13119a916e2f5c7738babc1a0ccd4195"
+  resolved "https://github.com/pressblog/medium-editor.git#b55227d4fbedc4bad5b4a2993656facebca3b4c8"
 
 memory-fs@^0.2.0:
   version "0.2.0"
