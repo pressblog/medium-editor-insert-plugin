@@ -10547,88 +10547,82 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    }, {
 	        key: 'deleteAddonElement',
-	        value: function deleteAddonElement(event, plugin) {
-	            var selection = window.getSelection();
-	            if (!selection || !selection.rangeCount) {
-	                return;
+	        value: function deleteAddonElement(event, addon) {
+	            var activeOverlay = this.getActiveOverlay(addon.activeClassName);
+
+	            if (activeOverlay && (activeOverlay.classList.contains(addon.activeClassName) || activeOverlay.querySelector('.' + addon.activeClassName) // for safari
+	            )) {
+
+	                event.preventDefault();
+
+	                var wrapper = activeOverlay.closest('.' + addon.elementClassName),
+	                    newParagraph = document.createElement('p');
+	                newParagraph.appendChild(document.createElement('br'));
+	                wrapper.parentNode.insertBefore(newParagraph, wrapper.nextElementSibling);
+	                _mediumEditor2.default.selection.moveCursor(document, newParagraph, 0);
+	                wrapper.remove();
 	            }
-
-	            var range = _mediumEditor2.default.selection.getSelectionRange(document),
-	                focusedElement = _mediumEditor2.default.selection.getSelectedParentElement(range);
-
-	            if (focusedElement.classList.contains(plugin.activeClassName) || focusedElement.querySelector('.' + plugin.activeClassName) // for safari
-	            ) {
-
-	                    event.preventDefault();
-
-	                    var wrapper = focusedElement.closest('.' + plugin.elementClassName),
-	                        newParagraph = document.createElement('p');
-	                    newParagraph.appendChild(document.createElement('br'));
-	                    wrapper.parentNode.insertBefore(newParagraph, wrapper.nextElementSibling);
-	                    _mediumEditor2.default.selection.moveCursor(document, newParagraph, 0);
-	                    wrapper.remove();
-	                }
 	        }
 	    }, {
 	        key: 'selectOverlay',
-	        value: function selectOverlay(event, plugin) {
+	        value: function selectOverlay(event, addon) {
 	            var el = event.target;
 
-	            if (el.classList.contains(plugin.overlayClassName)) {
+	            if (el.classList.contains(addon.overlayClassName)) {
 	                var overlay = el;
-	                this.activateOverlay(overlay, plugin.activeClassName);
-
-	                if (plugin.options.caption) {
-	                    this.showCaption(overlay, plugin.elementClassName);
-	                }
+	                this.activateOverlay(overlay, addon);
 	            }
 	        }
 	    }, {
 	        key: 'unselectOverlay',
-	        value: function unselectOverlay(event, plugin) {
+	        value: function unselectOverlay(event, addon) {
 	            var el = event.target;
 	            var clickedOverlay = void 0;
 
-	            if (el.classList.contains(plugin.activeClassName)) {
+	            if (el.classList.contains(addon.activeClassName)) {
 	                clickedOverlay = el;
 	            }
 
-	            this.inactivateAllOverlay(plugin.activeClassName);
-	            this.activateOverlay(clickedOverlay, plugin.activeClassName);
+	            this.inactivateAllOverlay(addon.activeClassName);
+	            this.activateOverlay(clickedOverlay, addon);
 	        }
 
 	        /*
-	         * @param {HTMLElement} el
-	         * @param {String} rootClassName
+	         * @param {HTMLElement} overlay
+	         * @param {String} elementClassName
 	         */
 
 	    }, {
 	        key: 'showCaption',
-	        value: function showCaption(el, rootClassName) {
-	            var root = el.closest('.' + rootClassName);
+	        value: function showCaption(overlay, elementClassName) {
+	            var root = overlay.closest('.' + elementClassName);
 	            var caption = root.querySelector('figcaption');
 
-	            if (!caption) {
+	            if (caption) {
+	                return caption;
+	            } else {
 	                caption = document.createElement('figcaption');
 	                caption.setAttribute('contenteditable', true);
 
-	                root.insertBefore(caption, el.nextElementSibling);
+	                root.insertBefore(caption, overlay.nextElementSibling);
+
+	                return caption;
 	            }
 	        }
 
 	        /*
 	         * @param {HTMLElement} el
-	         * @param {String} rootClassName
+	         * @param {String} elementClassName
 	         */
 
 	    }, {
 	        key: 'hideCaption',
-	        value: function hideCaption(el, rootClassName) {
-	            var roots = _utils2.default.getElementsByClassName(this._plugin.getEditorElements(), rootClassName);
+	        value: function hideCaption(el, elementClassName) {
+	            var roots = _utils2.default.getElementsByClassName(this._plugin.getEditorElements(), elementClassName);
 	            var figcaption = void 0;
 
 	            Array.prototype.forEach.call(roots, function (root) {
-	                if (!root.contains(el)) {
+	                if (!(el && root.contains(el))) {
 	                    figcaption = root.querySelector('figcaption');
 
 	                    if (figcaption && figcaption.textContent.length === 0) {
@@ -10637,19 +10631,28 @@ return /******/ (function(modules) { // webpackBootstrap
 	                }
 	            });
 	        }
+	    }, {
+	        key: 'getActiveOverlay',
+	        value: function getActiveOverlay(activeClassName) {
+	            var overlays = _utils2.default.getElementsByClassName(this._plugin.getEditorElements(), activeClassName);
+	            return overlays[0];
+	        }
 
 	        /*
 	         * @param {HTMLElement} overlay
-	         * @param {String} activeClassName
+	         * @param {Object} addon
 	         */
 
 	    }, {
 	        key: 'activateOverlay',
-	        value: function activateOverlay(overlay, activeClassName) {
+	        value: function activateOverlay(overlay, addon) {
 	            if (overlay) {
-	                overlay.classList.add(activeClassName);
+	                if (addon.options.caption) {
+	                    this.showCaption(overlay, addon.elementClassName);
+	                }
 
-	                this._editor.selectElement(overlay);
+	                overlay.classList.add(addon.activeClassName);
+	                _mediumEditor2.default.selection.selectNode(overlay, document);
 	            }
 	        }
 	    }, {
@@ -10666,13 +10669,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    }, {
 	        key: 'focusOnNextElement',
-	        value: function focusOnNextElement(event, plugin) {
+	        value: function focusOnNextElement(event, addon) {
 	            var focusedElement = this._editor.getSelectedParentElement(),
-	                wrapper = focusedElement.closest('.' + plugin.elementClassName),
+	                wrapper = focusedElement.closest('.' + addon.elementClassName),
 	                newParagraph = document.createElement('p'),
-	                enableCaption = plugin.options.caption,
-	                isOverlay = focusedElement.classList.contains(plugin.overlayClassName),
-	                isFigcaption = focusedElement.nodeName.toLowerCase() === 'figcaption' && focusedElement.closest('.' + plugin.elementClassName);
+	                enableCaption = addon.options.caption,
+	                isOverlay = focusedElement.classList.contains(addon.overlayClassName),
+	                isFigcaption = focusedElement.nodeName.toLowerCase() === 'figcaption' && focusedElement.closest('.' + addon.elementClassName);
 
 	            if (!isOverlay && !isFigcaption) {
 	                return;
@@ -10680,6 +10683,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            event.preventDefault();
 
+	            this.inactivateAllOverlay(addon.activeClassName);
+
+	            // キャプションor次の段落へ
 	            if (isOverlay && enableCaption) {
 	                var figcaption = wrapper.querySelector('figcaption');
 
@@ -10688,19 +10694,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    _mediumEditor2.default.selection.moveCursor(document, figcaption.childNodes[0], figcaption.childNodes[0].length);
 	                } else {
 	                    // 行頭へ
-	                    _mediumEditor2.default.selection.moveCursor(document, figcaption, 0);
+	                    _mediumEditor2.default.selection.selectNode(figcaption, document);
 	                }
 	            } else {
 	                newParagraph.appendChild(document.createElement('br'));
 	                wrapper.parentNode.insertBefore(newParagraph, wrapper.nextElementSibling);
-	                _mediumEditor2.default.selection.moveCursor(document, newParagraph, 0);
+	                _mediumEditor2.default.selection.selectNode(newParagraph, document);
+	                this.hideCaption(null, addon.elementClassName);
 	            }
-
-	            this._plugin.getCore().inactivateAllOverlay(plugin.activeClassName);
 	        }
 	    }, {
 	        key: 'focusOnPreviousElement',
-	        value: function focusOnPreviousElement(event, plugin) {
+	        value: function focusOnPreviousElement(event, addon) {
 	            if ([_mediumEditor2.default.util.keyCode.BACKSPACE, _mediumEditor2.default.util.keyCode.DELETE].indexOf(event.which) === -1 || _mediumEditor2.default.selection.getSelectionHtml(document)) {
 	                return;
 	            }
@@ -10716,37 +10721,42 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            var range = _mediumEditor2.default.selection.getSelectionRange(document),
 	                focusedElement = _mediumEditor2.default.selection.getSelectedParentElement(range),
-	                caretPosition = _mediumEditor2.default.selection.getCaretOffsets(focusedElement).left;
+	                caretPosition = _mediumEditor2.default.selection.getCaretOffsets(focusedElement).left,
+	                isBackspace = _mediumEditor2.default.util.isKey(event, _mediumEditor2.default.util.keyCode.BACKSPACE),
+	                isDelete = _mediumEditor2.default.util.isKey(event, _mediumEditor2.default.util.keyCode.DELETE);
 	            var sibling = void 0;
 
 	            // backspace：前の文字を削除 / delete：後ろの文字を削除
-	            if (_mediumEditor2.default.util.isKey(event, _mediumEditor2.default.util.keyCode.BACKSPACE) && caretPosition === 0) {
+	            if (isBackspace && caretPosition === 0) {
 	                sibling = focusedElement.previousElementSibling;
-	            } else if (_mediumEditor2.default.util.isKey(event, _mediumEditor2.default.util.keyCode.DELETE) && caretPosition === focusedElement.innerText.length) {
+	            } else if (isDelete && caretPosition === focusedElement.innerText.length) {
 	                sibling = focusedElement.nextElementSibling;
 	            }
 
+	            // 削除対象の要素がなければトリガーしない
 	            if (!sibling) {
 	                return;
 	            }
 
-	            if (focusedElement.nodeName.toLowerCase() === 'figcaption' && sibling.classList.contains(plugin.elementClassName + '-wrapper')) {
-	                sibling = sibling.closest('.' + plugin.elementClassName);
+	            if (focusedElement.nodeName.toLowerCase() === 'figcaption' && sibling.classList.contains(addon.elementClassName + '-wrapper')) {
+	                sibling = sibling.closest('.' + addon.elementClassName);
+	            } else {
+	                sibling = isBackspace ? focusedElement.previousElementSibling : focusedElement.nextElementSibling;
 	            }
 
-	            if (!sibling.classList.contains(plugin.elementClassName)) {
+	            if (!sibling.classList.contains(addon.elementClassName)) {
 	                return;
 	            }
 
 	            event.preventDefault();
 
-	            if (_mediumEditor2.default.util.isKey(event, _mediumEditor2.default.util.keyCode.BACKSPACE) && focusedElement.nodeName.toLowerCase() !== 'figcaption' && plugin.options.caption) {
-	                var figcaption = sibling.querySelector('figcaption');
+	            var overlay = sibling.querySelector('.' + addon.overlayClassName);
+
+	            if (isBackspace && focusedElement.nodeName.toLowerCase() !== 'figcaption' && addon.options.caption) {
+	                var figcaption = this.showCaption(overlay, addon.elementClassName);
 	                _mediumEditor2.default.selection.moveCursor(document, figcaption, 0);
 	            } else {
-	                var overlay = sibling.querySelector('.' + plugin.overlayClassName);
-	                overlay.classList.add(plugin.activeClassName);
-	                _mediumEditor2.default.selection.selectNode(overlay, document);
+	                this.activateOverlay(overlay, addon);
 	            }
 
 	            if (focusedElement.textContent.length === 0) {
@@ -11203,11 +11213,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this._plugin.getCore().unselectOverlay(e, this);
 	        }
 	    }, {
-	        key: 'showCaption',
-	        value: function showCaption(overlay) {
-	            this._plugin.getCore().showCaption(overlay, this.elementClassName);
-	        }
-	    }, {
 	        key: 'hideCaption',
 	        value: function hideCaption(e) {
 	            this._plugin.getCore().hideCaption(e.target, this.elementClassName);
@@ -11423,11 +11428,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	        key: 'unselectVideo',
 	        value: function unselectVideo(e) {
 	            this._plugin.getCore().unselectOverlay(e, this);
-	        }
-	    }, {
-	        key: 'showCaption',
-	        value: function showCaption(overlay) {
-	            this._plugin.getCore().showCaption(overlay, this.elementClassName);
 	        }
 	    }, {
 	        key: 'hideCaption',

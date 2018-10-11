@@ -224,22 +224,19 @@ export default class Core {
     }
 
     // editableKeydownDeleteイベントに登録する
-    deleteAddonElement(event, plugin) {
-        const selection = window.getSelection();
-        if (!selection || !selection.rangeCount) {
-            return;
-        }
+    deleteAddonElement(event, addon) {
+        const activeOverlay = this.getActiveOverlay(addon.activeClassName);
 
-        const range = MediumEditor.selection.getSelectionRange(document),
-            focusedElement = MediumEditor.selection.getSelectedParentElement(range);
-
-        if (focusedElement.classList.contains(plugin.activeClassName)
-            || focusedElement.querySelector('.' + plugin.activeClassName) // for safari
+        if (activeOverlay
+            && (
+                activeOverlay.classList.contains(addon.activeClassName)
+                || activeOverlay.querySelector('.' + addon.activeClassName) // for safari
+            )
         ) {
 
             event.preventDefault();
 
-            const wrapper = focusedElement.closest('.' + plugin.elementClassName),
+            const wrapper = activeOverlay.closest('.' + addon.elementClassName),
                 newParagraph = document.createElement('p');
             newParagraph.appendChild(document.createElement('br'));
             wrapper.parentNode.insertBefore(newParagraph, wrapper.nextElementSibling);
@@ -248,57 +245,57 @@ export default class Core {
         }
     }
 
-    selectOverlay(event, plugin) {
+    selectOverlay(event, addon) {
         const el = event.target;
 
-        if (el.classList.contains(plugin.overlayClassName)) {
+        if (el.classList.contains(addon.overlayClassName)) {
             const overlay = el;
-            this.activateOverlay(overlay, plugin.activeClassName);
-
-            if (plugin.options.caption) {
-                this.showCaption(overlay, plugin.elementClassName);
-            }
+            this.activateOverlay(overlay, addon);
         }
     }
 
-    unselectOverlay(event, plugin) {
+    unselectOverlay(event, addon) {
         const el = event.target;
         let clickedOverlay;
 
-        if (el.classList.contains(plugin.activeClassName)) {
+        if (el.classList.contains(addon.activeClassName)) {
             clickedOverlay = el;
         }
 
-        this.inactivateAllOverlay(plugin.activeClassName);
-        this.activateOverlay(clickedOverlay, plugin.activeClassName);
+        this.inactivateAllOverlay(addon.activeClassName);
+        this.activateOverlay(clickedOverlay, addon);
     }
 
     /*
-     * @param {HTMLElement} el
-     * @param {String} rootClassName
+     * @param {HTMLElement} overlay
+     * @param {String} elementClassName
      */
-    showCaption(el, rootClassName) {
-        const root = el.closest('.' + rootClassName);
+    showCaption(overlay, elementClassName) {
+        const root = overlay.closest('.' + elementClassName);
         let caption = root.querySelector('figcaption');
 
-        if (!caption) {
+        if (caption) {
+            return caption;
+        } else {
             caption = document.createElement('figcaption');
             caption.setAttribute('contenteditable', true);
 
-            root.insertBefore(caption, el.nextElementSibling);
+            root.insertBefore(caption, overlay.nextElementSibling);
+
+            return caption
         }
     }
 
     /*
      * @param {HTMLElement} el
-     * @param {String} rootClassName
+     * @param {String} elementClassName
      */
-    hideCaption(el, rootClassName) {
-        const roots = utils.getElementsByClassName(this._plugin.getEditorElements(), rootClassName);
+    hideCaption(el, elementClassName) {
+        const roots = utils.getElementsByClassName(this._plugin.getEditorElements(), elementClassName);
         let figcaption;
 
         Array.prototype.forEach.call(roots, root => {
-            if (!root.contains(el)) {
+            if (!(el && root.contains(el))) {
                 figcaption = root.querySelector('figcaption');
 
                 if (figcaption && figcaption.textContent.length === 0) {
@@ -308,15 +305,23 @@ export default class Core {
         });
     }
 
+    getActiveOverlay(activeClassName) {
+        const overlays = utils.getElementsByClassName(this._plugin.getEditorElements(), activeClassName);
+        return overlays[0];
+    }
+
     /*
      * @param {HTMLElement} overlay
-     * @param {String} activeClassName
+     * @param {Object} addon
      */
-    activateOverlay(overlay, activeClassName) {
+    activateOverlay(overlay, addon) {
         if (overlay) {
-            overlay.classList.add(activeClassName);
+            if (addon.options.caption) {
+                this.showCaption(overlay, addon.elementClassName);
+            }
 
-            this._editor.selectElement(overlay);
+            overlay.classList.add(addon.activeClassName);
+            MediumEditor.selection.selectNode(overlay, document);
         }
     }
 
@@ -329,13 +334,13 @@ export default class Core {
     }
 
     // TODO: ImageやVideoからトリガーしているが、Coreでまとめて一つでトリガーできそう
-    focusOnNextElement(event, plugin) {
+    focusOnNextElement(event, addon) {
         const focusedElement = this._editor.getSelectedParentElement(),
-            wrapper = focusedElement.closest('.' + plugin.elementClassName),
+            wrapper = focusedElement.closest('.' + addon.elementClassName),
             newParagraph = document.createElement('p'),
-            enableCaption = plugin.options.caption,
-            isOverlay = focusedElement.classList.contains(plugin.overlayClassName),
-            isFigcaption = focusedElement.nodeName.toLowerCase() === 'figcaption' && focusedElement.closest('.' + plugin.elementClassName);
+            enableCaption = addon.options.caption,
+            isOverlay = focusedElement.classList.contains(addon.overlayClassName),
+            isFigcaption = focusedElement.nodeName.toLowerCase() === 'figcaption' && focusedElement.closest('.' + addon.elementClassName);
 
         if (!isOverlay && !isFigcaption) {
             return;
@@ -343,24 +348,26 @@ export default class Core {
 
         event.preventDefault();
 
+        this.inactivateAllOverlay(addon.activeClassName);
+
+        // キャプションor次の段落へ
         if (isOverlay && enableCaption) {
             const figcaption = wrapper.querySelector('figcaption');
 
             if (figcaption.childNodes.length > 0) { // 行末へ
                 MediumEditor.selection.moveCursor(document, figcaption.childNodes[0], figcaption.childNodes[0].length);
             } else { // 行頭へ
-                MediumEditor.selection.moveCursor(document, figcaption, 0);
+                MediumEditor.selection.selectNode(figcaption, document);
             }
         } else {
             newParagraph.appendChild(document.createElement('br'));
             wrapper.parentNode.insertBefore(newParagraph, wrapper.nextElementSibling);
-            MediumEditor.selection.moveCursor(document, newParagraph, 0);
+            MediumEditor.selection.selectNode(newParagraph, document);
+            this.hideCaption(null, addon.elementClassName);
         }
-
-        this._plugin.getCore().inactivateAllOverlay(plugin.activeClassName);
     }
 
-    focusOnPreviousElement(event, plugin) {
+    focusOnPreviousElement(event, addon) {
         if ([MediumEditor.util.keyCode.BACKSPACE, MediumEditor.util.keyCode.DELETE].indexOf(event.which) === -1
             || MediumEditor.selection.getSelectionHtml(document)
         ) {
@@ -378,37 +385,42 @@ export default class Core {
 
         const range = MediumEditor.selection.getSelectionRange(document),
             focusedElement = MediumEditor.selection.getSelectedParentElement(range),
-            caretPosition = MediumEditor.selection.getCaretOffsets(focusedElement).left;
+            caretPosition = MediumEditor.selection.getCaretOffsets(focusedElement).left,
+            isBackspace = MediumEditor.util.isKey(event, MediumEditor.util.keyCode.BACKSPACE),
+            isDelete = MediumEditor.util.isKey(event, MediumEditor.util.keyCode.DELETE);
         let sibling;
 
         // backspace：前の文字を削除 / delete：後ろの文字を削除
-        if (MediumEditor.util.isKey(event, MediumEditor.util.keyCode.BACKSPACE) && caretPosition === 0) {
+        if (isBackspace && caretPosition === 0) {
             sibling = focusedElement.previousElementSibling;
-        } else if (MediumEditor.util.isKey(event, MediumEditor.util.keyCode.DELETE) && caretPosition === focusedElement.innerText.length) {
+        } else if (isDelete && caretPosition === focusedElement.innerText.length) {
             sibling = focusedElement.nextElementSibling;
         }
 
+        // 削除対象の要素がなければトリガーしない
         if (!sibling) {
             return;
         }
 
-        if (focusedElement.nodeName.toLowerCase() === 'figcaption' && sibling.classList.contains(plugin.elementClassName + '-wrapper')) {
-            sibling = sibling.closest('.' + plugin.elementClassName);
+        if (focusedElement.nodeName.toLowerCase() === 'figcaption' && sibling.classList.contains(addon.elementClassName + '-wrapper')) {
+            sibling = sibling.closest('.' + addon.elementClassName);
+        } else {
+            sibling = isBackspace ? focusedElement.previousElementSibling : focusedElement.nextElementSibling;
         }
 
-        if (!sibling.classList.contains(plugin.elementClassName)) {
+        if (!sibling.classList.contains(addon.elementClassName)) {
             return;
         }
 
         event.preventDefault();
 
-        if (MediumEditor.util.isKey(event, MediumEditor.util.keyCode.BACKSPACE) && focusedElement.nodeName.toLowerCase() !== 'figcaption' && plugin.options.caption) {
-            const figcaption = sibling.querySelector('figcaption');
+        const overlay = sibling.querySelector('.' + addon.overlayClassName);
+
+        if (isBackspace && focusedElement.nodeName.toLowerCase() !== 'figcaption' && addon.options.caption) {
+            const figcaption = this.showCaption(overlay, addon.elementClassName);
             MediumEditor.selection.moveCursor(document, figcaption, 0);
         } else {
-            const overlay = sibling.querySelector('.' + plugin.overlayClassName);
-            overlay.classList.add(plugin.activeClassName);
-            MediumEditor.selection.selectNode(overlay, document);
+            this.activateOverlay(overlay, addon);
         }
 
         if (focusedElement.textContent.length === 0) {

@@ -221,10 +221,6 @@ export default class Images {
         this._plugin.getCore().unselectOverlay(e, this);
     }
 
-    showCaption(overlay) {
-        this._plugin.getCore().showCaption(overlay, this.elementClassName);
-    }
-
     hideCaption(e) {
         this._plugin.getCore().hideCaption(e.target, this.elementClassName);
     }
