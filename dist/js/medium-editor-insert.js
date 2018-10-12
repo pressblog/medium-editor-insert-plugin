@@ -11363,11 +11363,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	    }, {
 	        key: 'replaceVideo',
-	        value: function replaceVideo(url, wrapper) {
+	        value: function replaceVideo(response, wrapper) {
 	            var source = document.createElement('source'),
 	                video = wrapper.querySelector('video');
 
-	            source.src = url;
+	            try {
+	                var responseObject = JSON.parse(response);
+	                source.src = responseObject.url;
+	                video.poster = responseObject.thumbnail;
+	            } catch (e) {
+	                source.src = response;
+	            }
 
 	            video.appendChild(source);
 	        }
@@ -11406,7 +11412,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	                    if (video) {
 	                        _this2.disablePreviewOverlay(video);
-	                        _this2.replaceVideo(xhr.responseText, wrapper);
+	                        _this2.replaceVideo(xhr.response, wrapper);
 	                    }
 	                }
 	            };

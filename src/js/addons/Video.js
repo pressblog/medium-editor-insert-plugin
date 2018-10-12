@@ -89,11 +89,17 @@ export default class Video {
         this.upload(file, figure);
     }
 
-    replaceVideo(url, wrapper) {
+    replaceVideo(response, wrapper) {
         const source = document.createElement('source'),
             video = wrapper.querySelector('video');
 
-        source.src = url;
+        try {
+            const responseObject = JSON.parse(response);
+            source.src = responseObject.url;
+            video.poster = responseObject.thumbnail;
+        } catch (e) {
+            source.src = response;
+        }
 
         video.appendChild(source);
     }
@@ -127,7 +133,7 @@ export default class Video {
 
                 if (video) {
                     this.disablePreviewOverlay(video);
-                    this.replaceVideo(xhr.responseText, wrapper);
+                    this.replaceVideo(xhr.response, wrapper);
                 }
             }
         };
