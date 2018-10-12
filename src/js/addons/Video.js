@@ -101,6 +101,8 @@ export default class Video {
             source.src = response;
         }
 
+        video.preload = "auto";
+
         video.appendChild(source);
     }
 

@@ -11375,6 +11375,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	                source.src = response;
 	            }
 
+	            video.preload = "auto";
+
 	            video.appendChild(source);
 	        }
 	    }, {
