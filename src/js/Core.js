@@ -279,7 +279,6 @@ export default class Core {
         } else {
             caption = document.createElement('figcaption');
             caption.setAttribute('contenteditable', true);
-            caption.appendChild(document.createElement('br'));
 
             root.insertBefore(caption, overlay.nextElementSibling);
 
