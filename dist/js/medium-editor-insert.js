@@ -10377,7 +10377,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this.buttons.classList.add('medium-editor-insert-buttons');
 	            this.buttons.setAttribute('contentediable', false);
 
-	            html = '<a class="medium-editor-insert-buttons-show" title="\u633F\u5165">+</a>\n            <ul class="medium-editor-insert-buttons-addons">';
+	            html = '<a class="medium-editor-insert-buttons-show" title="\u633F\u5165">' + (this._plugin.addLabel || '+') + '</a>\n            <ul class="medium-editor-insert-buttons-addons">';
 
 	            Object.keys(addons).forEach(function (name) {
 	                var addon = addons[name];

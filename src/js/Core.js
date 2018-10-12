@@ -73,7 +73,7 @@ export default class Core {
         this.buttons.classList.add('medium-editor-insert-buttons');
         this.buttons.setAttribute('contentediable', false);
 
-        html = `<a class="medium-editor-insert-buttons-show" title="挿入">+</a>
+        html = `<a class="medium-editor-insert-buttons-show" title="挿入">${this._plugin.addLabel || '+'}</a>
             <ul class="medium-editor-insert-buttons-addons">`;
 
         Object.keys(addons).forEach((name) => {
