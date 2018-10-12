@@ -18,7 +18,7 @@
         display: inline-block;
         width: 32px;
         height: 32px;
-        border-radius: 20px;
+        border-radius: 50%;
         border: 1px solid;
         font-size: 25px;
         line-height: 28px;
@@ -43,7 +43,6 @@
         transition: opacity .1s;
         li {
             display: inline-block;
-            background-color: #fff;
             transform: scale(0);
             transition: transform .1s 10ms;
             a {
@@ -52,11 +51,12 @@
                 margin: 0 5px;
                 width: 32px;
                 height: 32px;
-                border-radius: 20px;
+                border-radius: 50%;
                 border: 1px solid;
                 font-size: 20px;
                 line-height: 28px;
                 text-align: center;
+                background-color: #fff;
                 cursor: pointer;
                 .fa {
                     font-size: 15px;
