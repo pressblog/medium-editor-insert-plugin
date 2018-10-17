@@ -10532,6 +10532,27 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this._plugin.getAddon(name).handleClick(e);
 	        }
 	    }, {
+	        key: 'handleEnter',
+	        value: function handleEnter(event, addon) {
+	            var focusedElement = this._editor.getSelectedParentElement(),
+	                wrapper = focusedElement.closest('.' + addon.elementClassName),
+	                newParagraph = document.createElement('p'),
+	                isOverlay = focusedElement.classList.contains(addon.overlayClassName),
+	                isFigcaption = focusedElement.nodeName.toLowerCase() === 'figcaption';
+
+	            if (isOverlay || isFigcaption) {
+	                event.preventDefault();
+
+	                this.inactivateAllOverlay(addon.activeClassName);
+
+	                newParagraph.appendChild(document.createElement('br'));
+	                wrapper.parentNode.insertBefore(newParagraph, wrapper.nextElementSibling);
+	                _mediumEditor2.default.selection.moveCursor(document, newParagraph, 0);
+
+	                this.hideCaption(null, addon.elementClassName);
+	            }
+	        }
+	    }, {
 	        key: 'changeSelectionUpdateState',
 	        value: function changeSelectionUpdateState(event) {
 	            var selectedElement = this._editor.getSelectedParentElement();
@@ -10673,28 +10694,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	            Array.prototype.forEach.call(overlays, function (overlay) {
 	                overlay.classList.remove(activeClassName);
 	            });
-	        }
-
-	        // TODO: ImageやVideoからトリガーしているが、Coreでまとめて一つでトリガーできそう
-
-	    }, {
-	        key: 'focusOnNextElement',
-	        value: function focusOnNextElement(event, addon) {
-	            var focusedElement = this._editor.getSelectedParentElement(),
-	                wrapper = focusedElement.closest('.' + addon.elementClassName),
-	                newParagraph = document.createElement('p'),
-	                isOverlay = focusedElement.classList.contains(addon.overlayClassName);
-
-	            if (isOverlay) {
-	                event.preventDefault();
-
-	                this.inactivateAllOverlay(addon.activeClassName);
-
-	                newParagraph.appendChild(document.createElement('br'));
-	                wrapper.parentNode.insertBefore(newParagraph, wrapper.nextElementSibling);
-	                _mediumEditor2.default.selection.moveCursor(document, newParagraph, 0);
-	                this.hideCaption(null, addon.elementClassName);
-	            }
 	        }
 	    }, {
 	        key: 'focusOnPreviousElement',
@@ -10992,7 +10991,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this._plugin.on(document, 'click', this.hideCaption.bind(this));
 
 	            this._plugin.subscribe('editableKeydownDelete', this.handleDelete.bind(this));
-	            this._plugin.subscribe('editableKeydownEnter', this.focusOnNextElement.bind(this));
+	            this._plugin.subscribe('editableKeydownEnter', this.handleEnter.bind(this));
 
 	            this._plugin.getEditorElements().forEach(function (editor) {
 	                _this._plugin.on(editor, 'click', _this.selectImage.bind(_this));
@@ -11158,9 +11157,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	            overlay.innerHTML = '';
 	        }
 	    }, {
-	        key: 'focusOnNextElement',
-	        value: function focusOnNextElement(e) {
-	            this._plugin.getCore().focusOnNextElement(e, this);
+	        key: 'handleEnter',
+	        value: function handleEnter(e) {
+	            this._plugin.getCore().handleEnter(e, this);
 	        }
 	    }, {
 	        key: 'handleDelete',
@@ -11269,7 +11268,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this._plugin.on(document, 'click', this.hideCaption.bind(this));
 
 	            this._plugin.subscribe('editableKeydownDelete', this.handleDelete.bind(this));
-	            this._plugin.subscribe('editableKeydownEnter', this.focusOnNextElement.bind(this));
+	            this._plugin.subscribe('editableKeydownEnter', this.handleEnter.bind(this));
 
 	            this._plugin.getEditorElements().forEach(function (editor) {
 	                _this._plugin.on(editor, 'click', _this.selectVideo.bind(_this));
@@ -11389,9 +11388,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	            xhr.send(data);
 	        }
 	    }, {
-	        key: 'focusOnNextElement',
-	        value: function focusOnNextElement(e) {
-	            this._plugin.getCore().focusOnNextElement(e, this);
+	        key: 'handleEnter',
+	        value: function handleEnter(e) {
+	            this._plugin.getCore().handleEnter(e, this);
 	        }
 	    }, {
 	        key: 'selectVideo',

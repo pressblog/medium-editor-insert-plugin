@@ -213,6 +213,26 @@ export default class Core {
         this._plugin.getAddon(name).handleClick(e);
     }
 
+    handleEnter(event, addon) {
+        const focusedElement = this._editor.getSelectedParentElement(),
+            wrapper = focusedElement.closest('.' + addon.elementClassName),
+            newParagraph = document.createElement('p'),
+            isOverlay = focusedElement.classList.contains(addon.overlayClassName),
+            isFigcaption = focusedElement.nodeName.toLowerCase() === 'figcaption';
+
+        if (isOverlay || isFigcaption) {
+            event.preventDefault();
+
+            this.inactivateAllOverlay(addon.activeClassName);
+
+            newParagraph.appendChild(document.createElement('br'));
+            wrapper.parentNode.insertBefore(newParagraph, wrapper.nextElementSibling);
+            MediumEditor.selection.moveCursor(document, newParagraph, 0);
+
+            this.hideCaption(null, addon.elementClassName);
+        }
+    }
+
     changeSelectionUpdateState(event) {
         const selectedElement = this._editor.getSelectedParentElement();
 
@@ -340,25 +360,6 @@ export default class Core {
         Array.prototype.forEach.call(overlays, overlay => {
             overlay.classList.remove(activeClassName);
         });
-    }
-
-    // TODO: ImageやVideoからトリガーしているが、Coreでまとめて一つでトリガーできそう
-    focusOnNextElement(event, addon) {
-        const focusedElement = this._editor.getSelectedParentElement(),
-            wrapper = focusedElement.closest('.' + addon.elementClassName),
-            newParagraph = document.createElement('p'),
-            isOverlay = focusedElement.classList.contains(addon.overlayClassName);
-
-        if (isOverlay) {
-            event.preventDefault();
-
-            this.inactivateAllOverlay(addon.activeClassName);
-
-            newParagraph.appendChild(document.createElement('br'));
-            wrapper.parentNode.insertBefore(newParagraph, wrapper.nextElementSibling);
-            MediumEditor.selection.moveCursor(document, newParagraph, 0);
-            this.hideCaption(null, addon.elementClassName);
-        }
     }
 
     focusOnPreviousElement(event, addon) {

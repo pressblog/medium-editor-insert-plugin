@@ -33,7 +33,7 @@ export default class Video {
         this._plugin.on(document, 'click', this.hideCaption.bind(this));
 
         this._plugin.subscribe('editableKeydownDelete', this.handleDelete.bind(this));
-        this._plugin.subscribe('editableKeydownEnter', this.focusOnNextElement.bind(this));
+        this._plugin.subscribe('editableKeydownEnter', this.handleEnter.bind(this));
 
         this._plugin.getEditorElements().forEach(editor => {
             this._plugin.on(editor, 'click', this.selectVideo.bind(this));
@@ -144,8 +144,8 @@ export default class Video {
         xhr.send(data);
     }
 
-    focusOnNextElement(e) {
-        this._plugin.getCore().focusOnNextElement(e, this);
+    handleEnter(e) {
+        this._plugin.getCore().handleEnter(e, this);
     }
 
     selectVideo(e) {
