@@ -10540,16 +10540,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	                isOverlay = focusedElement.classList.contains(addon.overlayClassName),
 	                isFigcaption = focusedElement.nodeName.toLowerCase() === 'figcaption';
 
-	            if (isOverlay || isFigcaption) {
-	                event.preventDefault();
+	            if (wrapper) {
+	                if (isOverlay || isFigcaption) {
+	                    event.preventDefault();
 
-	                this.inactivateAllOverlay(addon.activeClassName);
+	                    this.inactivateAllOverlay(addon.activeClassName);
 
-	                newParagraph.appendChild(document.createElement('br'));
-	                wrapper.parentNode.insertBefore(newParagraph, wrapper.nextElementSibling);
-	                _mediumEditor2.default.selection.moveCursor(document, newParagraph, 0);
+	                    newParagraph.appendChild(document.createElement('br'));
+	                    wrapper.parentNode.insertBefore(newParagraph, wrapper.nextElementSibling);
+	                    _mediumEditor2.default.selection.moveCursor(document, newParagraph, 0);
 
-	                this.hideCaption(null, addon.elementClassName);
+	                    this.hideCaption(null, addon.elementClassName);
+	                }
 	            }
 	        }
 	    }, {
