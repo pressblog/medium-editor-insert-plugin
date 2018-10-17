@@ -24,7 +24,6 @@
                         <img src="./introduction.jpg">
                         <div class="medium-editor-insert-image-overlay"></div>
                     </div>
-                    <figcaption contenteditable="true">愛犬：ポン太</figcaption>
                 </figure>
                 <h2>自己紹介</h2>
                 <h3>名前</h3>
@@ -97,7 +96,7 @@
                 extensions: {
                     'insert': new MediumEditorInsert({
                         addons: {
-                            custom: CustomAddon,
+                            custom: CustomAddon
                         },
                         callback: function (obj) {
                             if (obj.type === 'error') {
