@@ -10606,6 +10606,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	                root.insertBefore(caption, overlay.nextElementSibling);
 
+	                this._plugin.on(caption, 'focus', this.focusFigcaption.bind(this));
+
 	                return caption;
 	            }
 	        }
@@ -10630,6 +10632,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    }
 	                }
 	            });
+	        }
+	    }, {
+	        key: 'focusFigcaption',
+	        value: function focusFigcaption(event) {
+	            var figcaption = event.target;
+	            if (figcaption.textContent.length === 0 && figcaption.getElementsByTagName('br').length === 0) {
+	                figcaption.appendChild(document.createElement('br'));
+	            }
 	        }
 	    }, {
 	        key: 'getActiveOverlay',

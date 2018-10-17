@@ -282,6 +282,8 @@ export default class Core {
 
             root.insertBefore(caption, overlay.nextElementSibling);
 
+            this._plugin.on(caption, 'focus', this.focusFigcaption.bind(this))
+
             return caption
         }
     }
@@ -303,6 +305,13 @@ export default class Core {
                 }
             }
         });
+    }
+
+    focusFigcaption(event) {
+        const figcaption = event.target;
+        if (figcaption.textContent.length === 0 && figcaption.getElementsByTagName('br').length === 0) {
+            figcaption.appendChild(document.createElement('br'));
+        }
     }
 
     getActiveOverlay(activeClassName) {
