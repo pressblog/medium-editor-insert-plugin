@@ -303,6 +303,8 @@ export default class Core {
             root.insertBefore(caption, overlay.nextElementSibling);
 
             this._plugin.on(caption, 'focus', this.focusFigcaption.bind(this))
+            this._plugin.on(caption, 'blur', this.blurFigcaption.bind(this))
+            this._plugin.on(caption, 'keydown', this.keydownFigcaption.bind(this))
 
             return caption
         }
@@ -331,6 +333,22 @@ export default class Core {
         const figcaption = event.target;
         if (figcaption.textContent.length === 0 && figcaption.getElementsByTagName('br').length === 0) {
             figcaption.appendChild(document.createElement('br'));
+        }
+    }
+
+    blurFigcaption(event) {
+        const figcaption = event.target;
+        if (figcaption.textContent.length === 0) {
+            figcaption.innerHTML = '';
+        }
+    }
+
+    keydownFigcaption(event) {
+        if ([MediumEditor.util.keyCode.BACKSPACE, MediumEditor.util.keyCode.DELETE].indexOf(event.which) !== -1) {
+            const figcaption = event.target;
+            if (figcaption.textContent.length === 0) {
+                event.preventDefault();
+            }
         }
     }
 
